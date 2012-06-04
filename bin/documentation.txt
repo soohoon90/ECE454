@@ -1,0 +1,127 @@
+06/02 10:37pm
+	- starting with a basic socket connection
+	- http://stackoverflow.com/questions/6570933/what-is-a-good-tutorial-for-peer-to-peer-networking-with-java
+	- ServerSocket, Socket
+	- Let's have two peer connect to each other first.
+		- just send ACK with peer name
+		- when receive ACK, print the peer name
+
+06/02 10:50pm	
+	- Socket.accept() seems to be a blocking listening for a connection...
+	
+06/02 11:27pm
+	- success! I have client sending arbitrary string to server & server printing it!
+	- Socket.isConnected() doesn't seem to do the trick when client quits...
+	- Now let's have three peer connect to each other
+		- this probably requires creating new thread for each new socket
+	- I wonder how I can debug multiple instance of on eclipse
+	
+06/02 11:35pm
+	- this site seems to be helpful to understand server/client java socket
+	- http://www.cs.usfca.edu/~parrt/course/601/lectures/sockets.html
+	- "The channel socket has a different port number than 8080. The server socket is 8080 so to get more than one person talking to the server at once, the server needs to hand off socket connections to a different port."
+	- interesting
+	- that means each peer will have 1 serverSocket
+	- "OutputStream out = channel.getOutputStream();
+	   PrintStream pout = new PrintStream(out);
+ 	   InputStream in = channel.getInputStream();
+	   DataInputStream din = new DataInputStream(in);"
+	- To read:
+	  String line = din.readLine();
+	- Close streams, sockets important
+
+06/03 12:40am
+	- Started a little bit on threads
+	- Creating RunnablePeer that extends abstract class Peer and implements Runnable
+	- run should be called when new Thread is created
+	- each thread is responsible for a peer
+	- sounds good so far...
+	- so main should create a peer(itself) and run itself??
+	- because peer has a join();
+	- ... no that doesn't make sense....
+	- Peer is basically each peer
+	- join() - accepts a container of Peers and attempt to join the SET
+      in doing so, it must push any files that it has locally to the SET
+      as well as receive any that are in the SET for which it has no copy
+    - leave() leaves the SET
+      close all sockets cleanly
+      inform all peers that it is leaving
+      desirable to push some file chunks to be pushed out before leaving
+      OR ensure chunks that are not heavily replicated are shared first
+    - query() used to query the state of the files in the local peer
+      receives an object of type Status and populates it with necessary information
+      for each file:
+      	fraction of file that is available locally
+      	fraction of file that is available in the system
+      	least replication level
+      	weighted least-replication level
+    - insert() takes a string which is filename
+      add it to local peer
+      then pushes out to the peers
+      divide files into chunks
+      peers each receive chunks either from the originating peer
+      or other peers that may have received particular chunks already
+
+06/03 08:17am
+	- this site seems easy to understand for threads
+	- http://www.cs.usfca.edu/~parrt/course/601/lectures/threads.html
+	- Okay MVP again, let's make the server create a new thread for each connection
+	- make the client really dumb, send ACK with name and incrementing number
+	- then we can try to make peer server & a client... how do we do that?
+
+06/03 9:45am
+	- success!
+	- threads are successfully created per connection
+	- I just had to hand over the Socket for each new Thread
+	- multiple clients can be handled well
+	- now i need to make it so that each peer is the same and try to connect to each other
+	- discover each other, and when one disconnects, be aware of the disconnect
+	- how should that be done?
+	- let's create TestPeer
+		- that will accept 3 inputs in the beginning
+		- your own port, peer1 port, peer2 port
+		- then have main thread listen for connection
+		- launch 2 threads for each peer?
+		- then why do i need main thread?
+		- if A launch two connection for B and C
+		- A and B, A and C will be connected
+		- if B launches connection for A and C
+		- A and B is already connected
+		- tricky!
+		- who connects to who??
+		- have to happen concurrently
+	- Also, need to start understanding how to send file by "chunks"
+	- http://stackoverflow.com/questions/8679547/send-large-files-over-socket-in-c
+	- we need some kind of protocol over the socket
+	- maybe json msg?
+	- "send" ... wait ... "ack"  "send chunk" ... wait .... "ack"?
+	- I guess having chunk information in the "Status" can help this process
+	- the "seeder" need to host this information fully such as filename, size, numChunk, chunk hash, file hash
+	- then transfer the "torrent" to the leechers
+		- leechers then "request"? or seeders "push"
+		- probably unnecessary to request by file
+		- better to request chunks that leechers need to whole group
+			- how does whole group decide who is going to transfer the chunk to leecher?
+			- how about leecher go around asking for the chunk
+			- keep internal counter of the round table
+			- ask indivisually
+			- if the seeder doesn't have that chunk, pass "NACK", else "ACK"
+			- if none of the seeder have it move on to the next chunk
+			- when "ACK" comes, send a "request"
+			- seeder with the chunk get a "request", then start transfering the "chunk"
+			- the leecher, will get the "chunk" and append it to the file chunk
+			- I think it would be wise to do filename.extension.chunk1
+				- until the whole file is there, then merge all the chunks
+				- check hash of all the chunks
+				- seeder will divide the file into chunks before seeding
+				- leecher will receive and store in chunk files until finished
+				- if the file is merged and you are requested the chunk, divide? (or do you need to divide at all)
+		 
+
+      
+      
+      	
+      	
+      	
+      	
+      	
