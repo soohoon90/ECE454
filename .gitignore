@@ -1,0 +1,10 @@
+.classpath
+.project
+
+bin/
+
+# OS X
+.DS_Store
+
+# Java
+*.class
