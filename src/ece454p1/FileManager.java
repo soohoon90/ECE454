@@ -1,11 +1,21 @@
 package ece454p1;
 
 import java.io.*;
+import java.util.*;
 
 public class FileManager {
-	public static void main(String[] args) {
-		FileManager m = new FileManager();
+	
+	public static final String CHUNKS_PATH = "Chunks";
+	
+	static {
+		File chunksDir = new File(CHUNKS_PATH);
 		
+		if (!chunksDir.exists()) {
+			chunksDir.mkdir();
+		}
+	}
+	
+	public static void main(String[] args) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		
 		while (true) {
@@ -19,38 +29,36 @@ public class FileManager {
 				System.exit(1);
 			}
 			
-			if (line.equals("quit")) {
+			if (line.equals("exit")) {
 				System.exit(0);
 			} else {
-				m.addFile(line);
+				FileManager.addFile(line);
 			}
 		}
 	}
 	
-	public FileManager() {
-		
-	}
-	
-	public void addFile(String filename) {
+	public static synchronized void addFile(String filename) {
 		File src = new File(filename);
 		File des = new File(src.getName());
 		
-		FileReader in = null;
+		FileInputStream in = null;
 		try {
-			in = new FileReader(src);
+			in = new FileInputStream(src);
 			
-			FileWriter out = null;
+			FileOutputStream out = null;
 			try {
-				out = new FileWriter(des);
+				out = new FileOutputStream(des);
 				
-				int c;
-				while ((c = in.read()) != -1) {
-					out.write(c);
+				int b;
+				while ((b = in.read()) != -1) {
+					out.write(b);
 				}
 			} finally {
 				if (out != null)
 					out.close();
 			}
+			
+			ChunkedFile file = new ChunkedFile(src.getName());
 		} catch (IOException e) {
 			System.out.println("Error copying file");
 		} finally {
