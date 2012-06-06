@@ -62,6 +62,42 @@ public class ChunkedFile {
 		return filename;
 	}
 	
+	public boolean isComplete() {
+		for (int i = 0; i < chunks.length; i++) {
+			if (chunks[i].getFile().length() == 0) {
+				return false; // Not all chunks exist locally
+			}
+		}
+		return true;
+	}
+	
+	public File rebuild() {
+		if (!this.isComplete())
+			return null;
+		
+		File file = new File(filename);
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(file);
+			
+			for (int i = 0; i < chunks.length; i++) {
+				byte[] data = chunks[i].getData();
+				out.write(data);
+			}
+			return file;
+		} catch (IOException e) {
+			System.out.println("Error writing file " + filename);
+		} finally {
+			try {
+				if (out != null)
+					out.close();
+			} catch (IOException e) {
+				
+			}
+		}
+		return null;
+	}
+	
 	public class Chunk {
 		private int number;
 		

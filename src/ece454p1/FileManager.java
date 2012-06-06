@@ -6,6 +6,7 @@ import java.util.*;
 public class FileManager {
 	
 	public static final String CHUNKS_PATH = "Chunks";
+	public static ChunkedFile lastFile;
 	
 	static {
 		File chunksDir = new File(CHUNKS_PATH);
@@ -31,8 +32,10 @@ public class FileManager {
 			
 			if (line.equals("exit")) {
 				System.exit(0);
+			} else if (line.equals("rebuild")) {
+				lastFile.rebuild();
 			} else {
-				FileManager.addFile(line);
+				lastFile = FileManager.addFile(line);
 			}
 		}
 	}
