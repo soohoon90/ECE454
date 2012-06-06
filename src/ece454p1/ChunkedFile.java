@@ -5,97 +5,126 @@ import java.io.*;
 
 public class ChunkedFile {
 	
-	public ArrayList<Chunk> chunks;
-	public final String filename;
-	public final long size;
+	private String filename;
+	private Chunk[] chunks;
+	
+	private void initChunks(long size) {
+		if (size % Config.CHUNK_SIZE == 0) {
+			this.chunks = new Chunk[(int)(size / Config.CHUNK_SIZE)];
+		} else {
+			this.chunks = new Chunk[(int)(size / Config.CHUNK_SIZE) + 1];
+		}
+		
+		for (int i = 0; i < chunks.length; i++) {
+			chunks[i] = new Chunk(i);
+		}
+	}
 	
 	// New chunked file with no chunks
 	public ChunkedFile(String filename, long size) {
 		this.filename = filename;
-		this.size = size;
-		this.chunks = new ArrayList<Chunk>();
+		this.initChunks(size);
 	}
 	
 	// New chunked file from complete local file
 	public ChunkedFile(String filename) {
 		this.filename = filename;
-		this.chunks = new ArrayList<Chunk>();
 		
 		File file = new File(filename);
-		if (!file.exists()) {
-			System.out.println("Error cannot find file " + filename);
-			this.size = 0;
-			return;
-		}
+		this.initChunks(file.length());
 		
 		FileInputStream in = null;
 		try {
 			in = new FileInputStream(file);
 			
-			long length = file.length();
-			for (int n = 0; n < length / Config.CHUNK_SIZE + 1; n++) {
-				Chunk chunk = new Chunk(n);
-				this.chunks.add(chunk);
-				
-				// Create the file chunk
-				File chunkFile = new File(FileManager.CHUNKS_PATH, chunk.getName());
-				if (!chunkFile.exists()) {
-					try {
-						chunkFile.createNewFile();
-					} catch (IOException e) {
-						System.out.println("Error creating chunk " + chunk.getName());
-						this.chunks.clear();
-						break;
-					}
-				}
-				
-				// Write the chunk
-				FileOutputStream out = null;
-				try {
-					out = new FileOutputStream(chunkFile);
-					
-					for (long i = Math.min(length, Config.CHUNK_SIZE); i > 0; i--) {
-						out.write(in.read());
-						length--;
-					}
-				} catch (IOException e) {
-					System.out.println("Error writing chunk " + chunk.getName());
-					this.chunks.clear();
-					break;
-				} finally {
-					if (out != null)
-						out.close();
-				}
+			byte[] buffer = new byte[Config.CHUNK_SIZE];
+			for (int i = 0; i < chunks.length; i++) {
+				int len = in.read(buffer);
+				chunks[i].setData(buffer, len);
 			}
 		} catch (IOException e) {
 			System.out.println("Error reading file " + filename);
-			this.chunks.clear();
 		} finally {
-			if (in != null) {
-				try {
+			try {
+				if (in != null)
 					in.close();
-				} catch (IOException e) {
-					
-				}
+			} catch (IOException e) {
+				
 			}
-		}
-		
-		if (this.chunks.size() > 0) {
-			this.size = file.length();
-		} else {
-			this.size = 0;
 		}
 	}
 	
+	public Chunk[] getChunks() {
+		return chunks;
+	}
+	
+	public String getName() {
+		return filename;
+	}
+	
 	public class Chunk {
-		public final int number;
+		private int number;
 		
 		public Chunk(int number) {
 			this.number = number;
 		}
 		
+		public byte[] getData() {
+			File file = this.getFile();
+			
+			FileInputStream in = null;
+			try {
+				in = new FileInputStream(file);
+				
+				byte[] data = new byte[(int)file.length()];
+				in.read(data);
+				return data;
+			} catch (IOException e) {
+				System.out.println("Error reading chunk " + this.getName());
+			} finally {
+				try {
+					if (in != null)
+						in.close();
+				} catch (IOException e) {
+					
+				}
+			}
+			return null;
+		}
+		
+		public void setData(byte[] data, int len) {
+			File file = this.getFile();
+			
+			FileOutputStream out = null;
+			try {
+				if (!file.exists()) {
+					file.createNewFile();
+				}
+				
+				out = new FileOutputStream(file);
+				out.write(data, 0, len);
+			} catch (IOException e) {
+				System.out.println("Error writing chunk " + this.getName());
+			} finally {
+				try {
+					if (out != null)
+						out.close();
+				} catch (IOException e) {
+					
+				}
+			}
+		}
+		
+		public File getFile() {
+			return new File(FileManager.CHUNKS_PATH, this.getName());
+		}
+		
 		public String getName() {
 			return filename + "." + Integer.toString(number);
+		}
+		
+		public int getNumber() {
+			return number;
 		}
 		
 		public String toString() {

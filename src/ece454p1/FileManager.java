@@ -37,37 +37,33 @@ public class FileManager {
 		}
 	}
 	
-	public static synchronized void addFile(String filename) {
+	public static synchronized ChunkedFile addFile(String filename) {
 		File src = new File(filename);
 		File des = new File(src.getName());
 		
 		FileInputStream in = null;
+		FileOutputStream out = null;
 		try {
 			in = new FileInputStream(src);
+			out = new FileOutputStream(des);
 			
-			FileOutputStream out = null;
-			try {
-				out = new FileOutputStream(des);
-				
-				int b;
-				while ((b = in.read()) != -1) {
-					out.write(b);
-				}
-			} finally {
-				if (out != null)
-					out.close();
+			int b;
+			while ((b = in.read()) != -1) {
+				out.write(b);
 			}
 			
-			ChunkedFile file = new ChunkedFile(src.getName());
+			return new ChunkedFile(src.getName());
 		} catch (IOException e) {
 			System.out.println("Error copying file");
+			return null;
 		} finally {
-			if (in != null) {
-				try {
+			try {
+				if (in != null)
 					in.close();
-				} catch (IOException e) {
-					
-				}
+				if (out != null)
+					out.close();
+			} catch (IOException e) {
+			
 			}
 		}
 	}
