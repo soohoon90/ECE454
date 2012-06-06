@@ -8,27 +8,37 @@ package ece454p1;
  * implement to access such data You will need to create methods to populate the
  * Status data.
  **/
-public abstract class Status {
+public class Status {
 
-	public abstract int numberOfFiles();
-
-	/*Use -1 to indicate if the file requested is not present*/
-	public abstract float fractionPresentLocally(int fileNumber); 
-
-	/*Use -1 to indicate if the file requested is not present*/
-	public abstract float fractionPresent(int fileNumber); 
+	public int numberOfFiles(){
+		return numFiles;
+	}
 
 	/*Use -1 to indicate if the file requested is not present*/
-	public abstract int minimumReplicationLevel(int fileNumber); 
+	public float fractionPresentLocally(int fileNumber){
+		return -1;
+	}
+
+	/*Use -1 to indicate if the file requested is not present*/
+	public float fractionPresent(int fileNumber){
+		return -1;
+	}
+
+	/*Use -1 to indicate if the file requested is not present*/
+	public int minimumReplicationLevel(int fileNumber){
+		return -1;
+	}
 	
 	/*Use -1 to indicate if the file requested is not present*/
-	public abstract float averageReplicationLevel(int fileNumber); 
+	public float averageReplicationLevel(int fileNumber){
+		return -1;
+	}
 	
 	// This is very cheesy and very lazy, but the focus of this assignment is
 	// not on dynamic containers but on the BT p2p file distribution
 
 	/* The number of files currently in the system, as viewed by this peer */
-	private int numFiles;
+	private int numFiles = 0;
 
 	/*
 	 * The fraction of the file present locally (= chunks on this peer/total
