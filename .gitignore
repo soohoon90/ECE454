@@ -1,2 +1,10 @@
+bin/
+
 # OS X
 .DS_Store
+
+# Java
+*.class
+
+# Xcode
+xcuserdata/

@@ -4,6 +4,13 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+/*
+public class FileManager {
+	public static LocalFile[] getLocalFiles();
+	public static int[] getChunks
+}
+ */
+
 public class FileManager {
 	
 	public static final String CHUNKS_PATH = "Chunks";
@@ -18,6 +25,8 @@ public class FileManager {
 		}
 		return "";
 	}
+	
+	public static LocalFile[] localFiles;
 	
 	static {
 		File chunksDir = new File(CHUNKS_PATH);
@@ -90,6 +99,12 @@ public class FileManager {
 		}
 		return null;
 	}
+	
+	/*
+	private LocalFile[] listLocalFiles() {
+		
+	}
+	 */
 	
 	public static void rebuildLastFile() {
 		if (lastFile == null)
