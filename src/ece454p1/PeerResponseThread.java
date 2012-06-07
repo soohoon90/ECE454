@@ -45,7 +45,7 @@ public class PeerResponseThread extends Thread{
 						if (FileManager.list.containsKey(filename) == false){
 							System.out.println(">> PeerResponse: inserted!");
 							FileManager.list.put(filename, false);
-							Peer.peerSyncThread.notifyAll();
+//							Peer.peerSyncThread.notifyAll();
 						}else{
 							System.out.println(">> PeerResponse: already exists!");
 						}
@@ -59,7 +59,7 @@ public class PeerResponseThread extends Thread{
 							for (String fn : br.readLine().split(",")){
 								if(FileManager.list.containsKey(fn) == false){
 									FileManager.list.put(fn, false);
-									Peer.peerSyncThread.notifyAll();
+//									Peer.peerSyncThread.notifyAll();
 								}
 							}
 							PrintStream ps = new PrintStream(peerSocket.getOutputStream());

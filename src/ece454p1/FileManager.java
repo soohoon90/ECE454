@@ -8,6 +8,16 @@ public class FileManager {
 	
 	public static final String CHUNKS_PATH = "Chunks";
 	public static LocalFile lastFile;
+	public static HashMap<String, Boolean> list;
+	
+	public String getFileNotLocal(){
+		for(Entry<String, Boolean> e : list.entrySet()){
+			if (e.getValue() == false){
+				return e.getKey();
+			}
+		}
+		return "";
+	}
 	
 	static {
 		File chunksDir = new File(CHUNKS_PATH);
