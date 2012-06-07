@@ -1,6 +1,8 @@
 package ece454p1;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -9,24 +11,40 @@ import java.util.ArrayList;
  * feel free to do a different container
  */
 public class Peer {
-	// This is the formal interface and you should follow it
-	
-	Thread serverThread;
 	
 	public Peer(PeerList peerList){
 		currentState = State.disconnected;
 		this.peerList = peerList;
-		threadList = new ArrayList<Thread>();
-		System.out.println("Peer is spawning PeerServer to listen for connections at "+peerList.myPort);
-		serverThread = new Thread(new PeerServer(peerList.myPort)); 
 	}
 	
 	public int insert(String filename){
 		System.out.println("Peer was told to insert " + filename);
+		// TODO: use the proper FileManager to insert new file
+		FileManager.list.put(filename, true);
+		
+		// if the peer is connected
+		// open a new connection to send a insert request for each connected peer
+		if (currentState == State.connected){
+			for(PeerList.PeerInfo p : Peer.peerList.peers){
+				if (p.connected == true){
+					try {
+						Socket s = new Socket(p.host, p.port);
+						PrintStream ps = new PrintStream(s.getOutputStream());
+						ps.println("insert");
+						ps.println(filename);
+					} catch (UnknownHostException e) {
+					} catch (IOException e) {
+					}
+				}
+			}
+		}
+		// PeerInsertNotifierThread p = new PeerInsertNotifierThread(filename);
 		return 0;
 	}
 
 	public int query(Status status){
+		// Use the file manager to create Status
+		status = new Status();
 		return 0;
 	}
 
@@ -38,21 +56,29 @@ public class Peer {
 		if (currentState == State.connected){
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
 		}		
-		for (int i=0; i < peerList.hosts.size(); i++){
-			PeerClient p = null;
-			try {
-				p = new PeerClient(peerList.hosts.get(i), peerList.ports.get(i));
-			} catch (UnknownHostException e) {
-			} catch (IOException e) {
-				System.out.println("Failed to connect to "+peerList.hosts.get(i)+":"+ peerList.ports.get(i));
-			}
-			if (p != null){
-				threadList.add(new Thread(p));
-			}
-		}
-		for(int i = 0; i < threadList.size(); i++){
-			threadList.get(i).start();
-		}
+
+		// launch the server thread that will spawn a response thread
+		// response thread will handle the request sent to the server
+		// types of req/res include:  request to join w/file list
+		//									get file list response
+		//							  request to leave
+		//							  request for file list update
+		//									get file list response
+		//							  request for file insert
+		//									ACK
+		//							  request for file chunk
+		//									get file chunk response
+		//										will request update w/file list
+		peerServerThread = new PeerServerThread(peerList.myPort);
+		peerServerThread.start();
+		
+		// launch the sync thread that will
+		// tell everyone that we joined
+		// then synchronize file list
+		// then loop until it all files are in sync
+		peerSyncThread = new PeerSyncThread();
+		peerSyncThread.start();
+
 		currentState = State.connected;
 		return ReturnCodes.ERR_OK;
 	}
@@ -61,11 +87,19 @@ public class Peer {
 		if (currentState == State.disconnected){
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
 		}
-		// TODO: finalize stuffs
-		// TODO: kill threads
-		for(int i = 0; i < threadList.size(); i++){
-			threadList.get(i).stop();
+
+		// SyncThread will send leave to everyone
+		peerSyncThread.running = false;
+		peerServerThread.running = false;
+		
+		// ServerThread is still blocked waiting for a connection
+		// Let's send a false connection
+		try {
+			Socket s = new Socket(peerList.myHost, peerList.myPort);
+			s.close();
+		} catch (Exception e) {
 		}
+		
 		currentState = State.disconnected;
 		return ReturnCodes.ERR_OK;
 	}
@@ -77,11 +111,12 @@ public class Peer {
 	 */
 
 	private enum State {
-		connected, disconnected, unknown
+		connected, disconnected
 	};
 
 	private State currentState;
-	private ArrayList<Thread> threadList; 
-	private PeerList peerList;
+	public static PeerList peerList;
+	public static PeerServerThread peerServerThread;
+	public static PeerSyncThread peerSyncThread;
 
 }

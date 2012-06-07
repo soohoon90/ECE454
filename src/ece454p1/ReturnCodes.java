@@ -1,7 +1,7 @@
 package ece454p1;
 
 public class ReturnCodes {
-
+	
 	// Everything good
 	public final static int ERR_OK = 0;
 	// Unknown warning

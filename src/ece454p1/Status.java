@@ -1,5 +1,8 @@
 package ece454p1;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * Status is the class that you populate with status data on the state of
  * replication in this peer and its knowledge of the replication level within
@@ -10,28 +13,54 @@ package ece454p1;
  **/
 public class Status {
 
+	public Status(){
+		this.numFiles = FileManager.list.size();
+	}
+	
 	public int numberOfFiles(){
 		return numFiles;
 	}
 
 	/*Use -1 to indicate if the file requested is not present*/
 	public float fractionPresentLocally(int fileNumber){
-		return -1;
+		if (fileNumber > numFiles || fileNumber < 0){
+			return -1;
+		}
+		Map.Entry<String, Boolean> entry = (Entry<String, Boolean>) FileManager.list.entrySet().toArray()[fileNumber];
+		if (entry.getValue() == true){
+			return 1;
+		}
+		return 0;
 	}
 
 	/*Use -1 to indicate if the file requested is not present*/
 	public float fractionPresent(int fileNumber){
-		return -1;
+		if (fileNumber > numFiles || fileNumber < 0){
+			return -1;
+		}
+		
+		
+		return 0;
 	}
 
 	/*Use -1 to indicate if the file requested is not present*/
 	public int minimumReplicationLevel(int fileNumber){
-		return -1;
+		if (fileNumber > numFiles || fileNumber < 0){
+			return -1;
+		}
+		
+		
+		return 0;
 	}
 	
 	/*Use -1 to indicate if the file requested is not present*/
 	public float averageReplicationLevel(int fileNumber){
-		return -1;
+		if (fileNumber > numFiles || fileNumber < 0){
+			return -1;
+		}
+		
+		
+		return 0;
 	}
 	
 	// This is very cheesy and very lazy, but the focus of this assignment is

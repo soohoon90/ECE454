@@ -2,13 +2,25 @@ package ece454p1;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 public class FileManager {
 	
 	public static final String CHUNKS_PATH = "Chunks";
+	public static HashMap<String, Boolean> list;
+	
+	public String getFileNotLocal(){
+		for(Entry<String, Boolean> e : list.entrySet()){
+			if (e.getValue() == false){
+				return e.getKey();
+			}
+		}
+		return "";
+	}
 	
 	static {
 		File chunksDir = new File(CHUNKS_PATH);
+		list = new HashMap<String, Boolean>(); 
 		
 		if (!chunksDir.exists()) {
 			chunksDir.mkdir();
@@ -57,7 +69,6 @@ public class FileManager {
 				if (out != null)
 					out.close();
 			}
-			
 			ChunkedFile file = new ChunkedFile(src.getName());
 		} catch (IOException e) {
 			System.out.println("Error copying file");

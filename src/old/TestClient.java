@@ -1,4 +1,4 @@
-package ece454p1;
+package old;
 
 import java.util.*;
 import java.io.*;
@@ -35,13 +35,24 @@ public class TestClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		PrintStream ps = new PrintStream(out, true); // Second param: auto-flush on write = true
+		// PrintStream ps = new PrintStream(out, true); // Second param: auto-flush on write = true
+		ObjectOutputStream  oos = new ObjectOutputStream(out);
 		while(true){
-			Random r = new Random();
-			int n = r.nextInt(10);
-		    System.out.println("sending ACK "+ n +"to server");
-		    ps.println("ACK " +n);
-		    Thread.sleep(5000);
+			HashMap<String,String> dictionary = new HashMap<String,String>();
+			
+			// TODO: first, send ACK to new client
+			
+			// TODO: pick a new chunk to request
+			
+			// TODO: then send request
+			dictionary.put("type","request");
+			dictionary.put("body","CHUNK_ID");
+			oos.writeObject(dictionary);
+			
+			// TODO: wait to receive 
+			
+			
+			
 		}
 	}
 }
