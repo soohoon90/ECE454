@@ -1,8 +1,2 @@
-.classpath
-.project
-
 # OS X
 .DS_Store
-
-# Java
-*.class
