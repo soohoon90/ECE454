@@ -7,16 +7,7 @@ import java.util.Map.Entry;
 public class FileManager {
 	
 	public static final String CHUNKS_PATH = "Chunks";
-	public static HashMap<String, Boolean> list;
-	
-	public String getFileNotLocal(){
-		for(Entry<String, Boolean> e : list.entrySet()){
-			if (e.getValue() == false){
-				return e.getKey();
-			}
-		}
-		return "";
-	}
+	public static LocalFile lastFile;
 	
 	static {
 		File chunksDir = new File(CHUNKS_PATH);
@@ -43,42 +34,80 @@ public class FileManager {
 			
 			if (line.equals("exit")) {
 				System.exit(0);
+			} else if (line.equals("rebuild")) {
+				FileManager.rebuildLastFile();
 			} else {
-				FileManager.addFile(line);
+				lastFile = FileManager.addFile(line);
 			}
 		}
 	}
 	
-	public static synchronized void addFile(String filename) {
-		File src = new File(filename);
-		File des = new File(src.getName());
+	public static LocalFile addFile(String filename) {
+		File srcFile = new File(filename);
+		File desFile = new File(srcFile.getName());
 		
-		FileInputStream in = null;
+		LocalFile local = new LocalFile(srcFile.getName(), srcFile.length());
+		
+		RandomAccessFile src = null;
+		RandomAccessFile des = null;
 		try {
-			in = new FileInputStream(src);
-			
-			FileOutputStream out = null;
-			try {
-				out = new FileOutputStream(des);
-				
-				int b;
-				while ((b = in.read()) != -1) {
-					out.write(b);
-				}
-			} finally {
-				if (out != null)
-					out.close();
+			if (!desFile.exists()) {
+				desFile.createNewFile();
 			}
-			ChunkedFile file = new ChunkedFile(src.getName());
+			
+			src = new RandomAccessFile(srcFile, "r");
+			des = new RandomAccessFile(desFile, "rws");
+			
+			byte[] buffer = new byte[Config.CHUNK_SIZE];
+			for (int i = 0; i < local.numberOfChunks(); i++) {
+				int len = src.read(buffer);
+				local.writeChunk(i, buffer, len);
+				des.write(buffer, 0, len);
+			}
+			
+			return local;
 		} catch (IOException e) {
-			System.out.println("Error copying file");
+			System.out.println("Error importing file");
 		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					
-				}
+			try {
+				if (src != null)
+					src.close();
+				if (des != null)
+					des.close();
+			} catch (IOException e) {
+			
+			}
+		}
+		return null;
+	}
+	
+	public static void rebuildLastFile() {
+		if (lastFile == null)
+			return;
+		
+		File desFile = new File(lastFile.getName());
+		
+		RandomAccessFile des = null;
+		try {
+			if (!desFile.exists()) {
+				desFile.createNewFile();
+			}
+			
+			des = new RandomAccessFile(new File(lastFile.getName()), "rws");
+			
+			for (int i = 0; i < lastFile.numberOfChunks(); i++) {
+				byte[] data = lastFile.readChunk(i);
+				des.write(data);
+			}
+			
+		} catch (IOException e) {
+			System.out.println("Error rebuilding file " + lastFile.getName());
+		} finally {
+			try {
+				if (des != null)
+					des.close();
+			} catch (IOException e) {
+				
 			}
 		}
 	}
