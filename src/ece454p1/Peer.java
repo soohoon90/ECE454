@@ -17,9 +17,11 @@ public class Peer {
 	}
 	
 	private static Peer[] peers;
+	private static PeerServer server;
 	
 	private String address;
 	private int port;
+	private ArrayList<String> files;
 	
 	public Peer(String address, int port) {
 		this.address = address;
@@ -67,17 +69,11 @@ public class Peer {
 		try {
 			peersIn = new RandomAccessFile(peersFilename, "r");
 			
-			int lineNumber = -1;
+			int lineNumber = 0;
 			String line;
 			while ((line = peersIn.readLine()) != null) {
-				lineNumber++;
-				if (lineNumber == peerNumber) // Skip yourself
-					continue;
-				
 				String[] items = line.split(" ");
-				if (items.length == 0) { // Empty line
-					continue;
-				} else if (items.length != 2) {
+				if (items.length != 2) {
 					System.out.println("Error parsing peers file");
 					System.exit(1);
 				}
@@ -90,7 +86,12 @@ public class Peer {
 					System.exit(1);
 				}
 				
-				peersList.add(new Peer(items[0], port));
+				if (lineNumber == peerNumber) {
+					server = new PeerServer(port);
+				} else {
+					peersList.add(new Peer(items[0], port));
+				}
+				lineNumber++;
 			}
 		} catch (IOException e) {
 			System.out.println("Error reading peers file");
@@ -106,7 +107,7 @@ public class Peer {
 		
 		if (peerNumber < 0 || peerNumber > peersList.size()) {
 			System.out.println("Error: Peer number out of range");
-			Peer.printUsageAndQuit(1);
+			System.exit(1);
 		}
 		peers = peersList.toArray(new Peer[peersList.size()]);
 		
@@ -150,7 +151,7 @@ public class Peer {
 	}
 	
 	public static void join(String[] args) {
-		
+		server.start();
 	}
 	
 	public static void query(String[] args) {
@@ -162,7 +163,7 @@ public class Peer {
 	}
 	
 	public static void leave(String[] args) {
-		
+		server.stop();
 	}
 	
 	public int insert(String filename){

@@ -21,6 +21,7 @@
 		3D75FFBF158092E900F20539 /* Status.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Status.java; path = src/ece454p1/Status.java; sourceTree = "<group>"; };
 		3D75FFC0158092E900F20539 /* TestMain.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = TestMain.java; path = src/ece454p1/TestMain.java; sourceTree = "<group>"; };
 		3D75FFC31580954300F20539 /* peers.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = peers.txt; sourceTree = "<group>"; };
+		3D75FFC41580AC5600F20539 /* PeerServer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerServer.java; path = src/ece454p1/PeerServer.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -48,6 +49,7 @@
 				3D75FFB6158092E900F20539 /* FileManager.java */,
 				3D75FFB7158092E900F20539 /* LocalFile.java */,
 				3D75FFB8158092E900F20539 /* Peer.java */,
+				3D75FFC41580AC5600F20539 /* PeerServer.java */,
 				3D75FFB9158092E900F20539 /* PeerList.java */,
 				3D75FFBA158092E900F20539 /* PeerResponseThread.java */,
 				3D75FFBB158092E900F20539 /* PeerServerThread.java */,
@@ -65,7 +67,7 @@
 /* Begin PBXLegacyTarget section */
 		3D75FF9C158090EE00F20539 /* Project1 */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "ChunkedFile.java Config.java FileManager.java LocalFile.java Peer.java PeerList.java PeerResponseThread.java PeerServerThread.java PeerSyncThread.java RemoteFile.java ReturnCodes.java Status.java TestMain.java";
+			buildArgumentsString = "ChunkedFile.java Config.java FileManager.java LocalFile.java Peer.java PeerServer.java PeerList.java PeerResponseThread.java PeerServerThread.java PeerSyncThread.java RemoteFile.java ReturnCodes.java Status.java TestMain.java";
 			buildConfigurationList = 3D75FF9F158090EE00F20539 /* Build configuration list for PBXLegacyTarget "Project1" */;
 			buildPhases = (
 			);
