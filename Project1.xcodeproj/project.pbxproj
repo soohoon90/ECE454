@@ -20,12 +20,14 @@
 		3D75FFBE158092E900F20539 /* ReturnCodes.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ReturnCodes.java; path = src/ece454p1/ReturnCodes.java; sourceTree = "<group>"; };
 		3D75FFBF158092E900F20539 /* Status.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Status.java; path = src/ece454p1/Status.java; sourceTree = "<group>"; };
 		3D75FFC0158092E900F20539 /* TestMain.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = TestMain.java; path = src/ece454p1/TestMain.java; sourceTree = "<group>"; };
+		3D75FFC31580954300F20539 /* peers.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = peers.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		3D75FF95158090EE00F20539 = {
 			isa = PBXGroup;
 			children = (
+				3D75FFC31580954300F20539 /* peers.txt */,
 				3D75FFC1158092EF00F20539 /* src */,
 			);
 			sourceTree = "<group>";

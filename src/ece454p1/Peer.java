@@ -1,7 +1,6 @@
 package ece454p1;
 
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -15,6 +14,155 @@ public class Peer {
 	public Peer(PeerList peerList){
 		currentState = State.disconnected;
 		this.peerList = peerList;
+	}
+	
+	private static Peer[] peers;
+	
+	private String address;
+	private int port;
+	
+	public Peer(String address, int port) {
+		this.address = address;
+		this.port = port;
+	}
+	
+	private static void printUsageAndQuit(int code) {
+		System.out.println();
+		System.out.println("Usage:");
+		System.out.println("\tPeer peers-file peer-number");
+		System.out.println();
+		System.exit(code);
+	}
+	
+	// e.g. java ece454p1.Peer peers.txt 1
+	public static void main(String[] args) {
+		
+		// Parse args
+		String peersFilename = null;
+		int peerNumber = -1;
+		
+		for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
+			if (i == args.length - 2) { // Peers file
+				peersFilename = args[i];
+			} else if (i == args.length - 1) { // Peer number
+				try {
+					peerNumber = Integer.parseInt(args[i]);
+				} catch (NumberFormatException e) {
+					System.out.println("Error parsing peer number");
+				}
+			} else {
+				System.out.println("Unknown arg: " + args[i]);
+			}
+		}
+		
+		if (peersFilename == null || peerNumber == -1) {
+			System.out.println("Error: Missing peers file or peer number");
+			Peer.printUsageAndQuit(1);
+		}
+		
+		// Parse peers file
+		ArrayList<Peer> peersList = new ArrayList<Peer>();
+		RandomAccessFile peersIn = null;
+		try {
+			peersIn = new RandomAccessFile(peersFilename, "r");
+			
+			int lineNumber = -1;
+			String line;
+			while ((line = peersIn.readLine()) != null) {
+				lineNumber++;
+				if (lineNumber == peerNumber) // Skip yourself
+					continue;
+				
+				String[] items = line.split(" ");
+				if (items.length == 0) { // Empty line
+					continue;
+				} else if (items.length != 2) {
+					System.out.println("Error parsing peers file");
+					System.exit(1);
+				}
+				
+				int port = -1;
+				try {
+					port = Integer.parseInt(items[1]);
+				} catch (NumberFormatException e) {
+					System.out.println("Error parsing port number");
+					System.exit(1);
+				}
+				
+				peersList.add(new Peer(items[0], port));
+			}
+		} catch (IOException e) {
+			System.out.println("Error reading peers file");
+			System.exit(1);
+		} finally {
+			try {
+				if (peersIn != null)
+					peersIn.close();
+			} catch (IOException e) {
+				
+			}
+		}
+		
+		if (peerNumber < 0 || peerNumber > peersList.size()) {
+			System.out.println("Error: Peer number out of range");
+			Peer.printUsageAndQuit(1);
+		}
+		peers = peersList.toArray(new Peer[peersList.size()]);
+		
+		// Startup info
+		System.out.println("Other peers:");
+		for (int i = 0; i < peers.length; i++) {
+			System.out.println(peers[i].address + " " + Integer.toString(peers[i].port));
+		}
+		
+		// Console
+		System.out.println();
+		System.out.println("Type 'exit' to quit");
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		while (true) {
+			String line = "";
+			
+			System.out.print("> ");
+			try {
+				line = in.readLine();
+			} catch (IOException e) {
+				System.out.println("Error reading input");
+				System.exit(1);
+			}
+			
+			String[] lineArgs = line.split(" ");
+			if (lineArgs[0].equals("exit")) {
+				System.exit(0);
+			} else if (lineArgs[0].equals("join")) {
+				Peer.join(lineArgs);
+			} else if (lineArgs[0].equals("query")) {
+				Peer.query(lineArgs);
+			} else if (lineArgs[0].equals("insert")) {
+				Peer.insert(lineArgs);
+			} else if (lineArgs[0].equals("leave")) {
+				Peer.leave(lineArgs);
+			} else {
+				System.out.println("Unknown command: " + lineArgs[0]);
+			}
+		}
+	}
+	
+	public static void join(String[] args) {
+		
+	}
+	
+	public static void query(String[] args) {
+		
+	}
+	
+	public static void insert(String[] args) {
+		
+	}
+	
+	public static void leave(String[] args) {
+		
 	}
 	
 	public int insert(String filename){
