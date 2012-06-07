@@ -85,17 +85,17 @@ public class PeerSyncThread extends Thread{
 				break;
 			}
 
-			int countRemote = 0;
-			for(Entry<String, Boolean> entry : FileManager.list.entrySet()){
-				if(entry.getValue() == false) countRemote++;
-			}
-			
-			if (countRemote == 0){
-				try {
-					Thread.currentThread();
-				} catch (InterruptedException e) {
-				}
-			}
+//			int countRemote = 0;
+//			for(Entry<String, Boolean> entry : FileManager.list.entrySet()){
+//				if(entry.getValue() == false) countRemote++;
+//			}
+//			
+//			if (countRemote == 0){
+//				try {
+//					Thread.currentThread();
+//				} catch (InterruptedException e) {
+//				}
+//			}
 			
 //			System.out.println(">> PeerClient: sending a new request...");
 //			HashMap<String,String> dictionary = new HashMap<String,String>();
