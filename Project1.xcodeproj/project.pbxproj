@@ -1,0 +1,198 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		3D75FFB4158092E900F20539 /* ChunkedFile.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ChunkedFile.java; path = src/ece454p1/ChunkedFile.java; sourceTree = "<group>"; };
+		3D75FFB5158092E900F20539 /* Config.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Config.java; path = src/ece454p1/Config.java; sourceTree = "<group>"; };
+		3D75FFB6158092E900F20539 /* FileManager.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = FileManager.java; path = src/ece454p1/FileManager.java; sourceTree = "<group>"; };
+		3D75FFB7158092E900F20539 /* LocalFile.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LocalFile.java; path = src/ece454p1/LocalFile.java; sourceTree = "<group>"; };
+		3D75FFB8158092E900F20539 /* Peer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Peer.java; path = src/ece454p1/Peer.java; sourceTree = "<group>"; };
+		3D75FFB9158092E900F20539 /* PeerList.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerList.java; path = src/ece454p1/PeerList.java; sourceTree = "<group>"; };
+		3D75FFBA158092E900F20539 /* PeerResponseThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerResponseThread.java; path = src/ece454p1/PeerResponseThread.java; sourceTree = "<group>"; };
+		3D75FFBB158092E900F20539 /* PeerServerThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerServerThread.java; path = src/ece454p1/PeerServerThread.java; sourceTree = "<group>"; };
+		3D75FFBC158092E900F20539 /* PeerSyncThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerSyncThread.java; path = src/ece454p1/PeerSyncThread.java; sourceTree = "<group>"; };
+		3D75FFBD158092E900F20539 /* RemoteFile.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = RemoteFile.java; path = src/ece454p1/RemoteFile.java; sourceTree = "<group>"; };
+		3D75FFBE158092E900F20539 /* ReturnCodes.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ReturnCodes.java; path = src/ece454p1/ReturnCodes.java; sourceTree = "<group>"; };
+		3D75FFBF158092E900F20539 /* Status.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Status.java; path = src/ece454p1/Status.java; sourceTree = "<group>"; };
+		3D75FFC0158092E900F20539 /* TestMain.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = TestMain.java; path = src/ece454p1/TestMain.java; sourceTree = "<group>"; };
+		3D75FFC31580954300F20539 /* peers.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = peers.txt; sourceTree = "<group>"; };
+		3D75FFCC1581BE7500F20539 /* peers2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = peers2.txt; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3D75FF95158090EE00F20539 = {
+			isa = PBXGroup;
+			children = (
+				3D75FFC31580954300F20539 /* peers.txt */,
+				3D75FFCC1581BE7500F20539 /* peers2.txt */,
+				3D75FFC1158092EF00F20539 /* src */,
+			);
+			sourceTree = "<group>";
+		};
+		3D75FFC1158092EF00F20539 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				3D75FFC2158092FE00F20539 /* ece454p1 */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		3D75FFC2158092FE00F20539 /* ece454p1 */ = {
+			isa = PBXGroup;
+			children = (
+				3D75FFB4158092E900F20539 /* ChunkedFile.java */,
+				3D75FFB5158092E900F20539 /* Config.java */,
+				3D75FFB6158092E900F20539 /* FileManager.java */,
+				3D75FFB7158092E900F20539 /* LocalFile.java */,
+				3D75FFB8158092E900F20539 /* Peer.java */,
+				3D75FFB9158092E900F20539 /* PeerList.java */,
+				3D75FFBA158092E900F20539 /* PeerResponseThread.java */,
+				3D75FFBB158092E900F20539 /* PeerServerThread.java */,
+				3D75FFBC158092E900F20539 /* PeerSyncThread.java */,
+				3D75FFBD158092E900F20539 /* RemoteFile.java */,
+				3D75FFBE158092E900F20539 /* ReturnCodes.java */,
+				3D75FFBF158092E900F20539 /* Status.java */,
+				3D75FFC0158092E900F20539 /* TestMain.java */,
+			);
+			name = ece454p1;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		3D75FF9C158090EE00F20539 /* Project1 */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "ChunkedFile.java Config.java FileManager.java LocalFile.java Peer.java PeerList.java PeerResponseThread.java PeerServerThread.java PeerSyncThread.java RemoteFile.java ReturnCodes.java Status.java TestMain.java";
+			buildConfigurationList = 3D75FF9F158090EE00F20539 /* Build configuration list for PBXLegacyTarget "Project1" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/javac;
+			buildWorkingDirectory = "/Users/William/Developer/School/ECE 454/src/ece454p1";
+			dependencies = (
+			);
+			name = Project1;
+			passBuildSettingsInEnvironment = 0;
+			productName = Project1;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		3D75FF97158090EE00F20539 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+				ORGANIZATIONNAME = "University of Waterloo";
+			};
+			buildConfigurationList = 3D75FF9A158090EE00F20539 /* Build configuration list for PBXProject "Project1" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3D75FF95158090EE00F20539;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3D75FF9C158090EE00F20539 /* Project1 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		3D75FF9D158090EE00F20539 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		3D75FF9E158090EE00F20539 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		3D75FFA0158090EE00F20539 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3D75FFA1158090EE00F20539 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3D75FF9A158090EE00F20539 /* Build configuration list for PBXProject "Project1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D75FF9D158090EE00F20539 /* Debug */,
+				3D75FF9E158090EE00F20539 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D75FF9F158090EE00F20539 /* Build configuration list for PBXLegacyTarget "Project1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D75FFA0158090EE00F20539 /* Debug */,
+				3D75FFA1158090EE00F20539 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3D75FF97158090EE00F20539 /* Project object */;
+}

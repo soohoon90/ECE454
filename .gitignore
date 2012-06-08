@@ -1,6 +1,7 @@
 bin/
 
-.class
+*.class
 
 # OS X
 .DS_Store
+xcuserdata/
