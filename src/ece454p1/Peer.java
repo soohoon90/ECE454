@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * Peer and Status are the classes we really care about Peers is a container;
  * feel free to do a different container
  */
-public class Peer {
+public class Peer implements Runnable {
 	
 	public Peer(PeerList peerList){
 		currentState = State.disconnected;
@@ -21,11 +21,47 @@ public class Peer {
 	
 	private String address;
 	private int port;
+	private Socket socket;
 	private ArrayList<String> files;
 	
 	public Peer(String address, int port) {
 		this.address = address;
 		this.port = port;
+	}
+	
+	public void connect() {
+		try {
+			socket = new Socket(address, port);
+		} catch (IOException e) {
+			System.out.println("Unable to connect to " + address + ":" + Integer.toString(port));
+		}
+	}
+	
+	public void disconnect() {
+		try {
+			socket.close();
+		} catch (IOException e) {
+			System.out.println("Error closing socket");
+		}
+		socket = null;
+	}
+	
+	public void send(String message) {
+		if (socket == null)
+			return;
+		
+		PrintStream out = null;
+		try {
+			out = new PrintStream(socket.getOutputStream());
+		} catch (IOException e) {
+			System.out.println("Error writing to socket");
+			return;
+		}
+		out.println(message);
+	}
+	
+	public void run() {
+		
 	}
 	
 	private static void printUsageAndQuit(int code) {
@@ -114,7 +150,7 @@ public class Peer {
 		// Startup info
 		System.out.println("Other peers:");
 		for (int i = 0; i < peers.length; i++) {
-			System.out.println(peers[i].address + " " + Integer.toString(peers[i].port));
+			System.out.println(peers[i].address + ":" + Integer.toString(peers[i].port));
 		}
 		
 		// Console
@@ -152,6 +188,12 @@ public class Peer {
 	
 	public static void join(String[] args) {
 		server.start();
+		
+		for (Peer peer : peers) {
+			if (peer.socket == null) {
+				peer.connect();
+			}
+		}
 	}
 	
 	public static void query(String[] args) {
