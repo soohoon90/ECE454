@@ -27,13 +27,13 @@ public class PeerServerThread extends Thread{
 		// TODO Auto-generated method stub
 		while(running){
 			Socket fromPeer = null;
-			System.out.println(">> PeerServer: listening at "+sSocket.getLocalPort());
+//			System.out.println(">> PeerServer: listening at "+sSocket.getLocalPort());
 			try {
 				fromPeer = sSocket.accept();
 			} catch (IOException e) {
 			}			
 			
-	        System.out.println(">> PeerServer: Spawning to handle new Request from "+fromPeer.getInetAddress()+":"+fromPeer.getPort()+"!");
+//	        System.out.println(">> PeerServer: Spawning to handle new Request from "+fromPeer.getInetAddress()+":"+fromPeer.getPort()+"!");
 	        Thread t = new PeerResponseThread(fromPeer);
 	        tList.add(t);
 	        t.start();

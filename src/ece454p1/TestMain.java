@@ -29,28 +29,33 @@ public class TestMain {
 		} catch(Exception e){}
 		System.out.println("\tIP:"+peerList.myHost+"\tPORT:"+peerList.myPort+" <=me");
 		if (peerList.peers.size() > 0){
-	    	  for(PeerList.PeerInfo peerInfo : peerList.peers){
-		    	  System.out.println("\tIP:"+peerInfo.host+"\tPORT:"+peerInfo.port);
-	    	  }
+			for(PeerList.PeerInfo peerInfo : peerList.peers){
+				System.out.println("\tIP:"+peerInfo.host+"\tPORT:"+peerInfo.port);
+			}
 		}else{
-	    	  System.out.println("no peer recongized!");
-	    	  System.exit(1);
+			System.out.println("no peer recongized!");
+			System.exit(1);
 		}
 
 		String hostAddress = null;
-		
+
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
 			hostAddress = addr.getHostAddress();
 		} catch (UnknownHostException e) {
 		}
-		
+
 		System.out.println("Creating Peer...");
 		Peer peer = new Peer(peerList);
 		while(true){
-	    	  System.out.print("COMMANDS (insert, query, join, leave) PROMPT> ");
+			System.out.print("COMMANDS (insert, query, join, leave) PROMPT> ");
+			String argv[] = {};
 			try {
-			   input = br.readLine();
+				input = br.readLine();
+				if (input.split(" ").length > 1){
+					argv = input.split(" ");
+					input = argv[0];
+				}
 			} catch (IOException ioe) {
 			}
 			if (input.toLowerCase().equals("show")){
@@ -58,46 +63,63 @@ public class TestMain {
 					System.out.println(pi.host+":"+pi.port+" is "+(pi.connected ? "online" : "offline"));
 				}
 			}else if (input.toLowerCase().equals("set")){
-		    	  System.out.println("Change myPort to...");
-		    	  String input2 = "";
-		    	  try {
-		    		  input2 = br.readLine();
-		    		  Peer.peerList.myPort = Integer.parseInt(input2);
-		    	  } catch (IOException ioe) {
-				  }		
+				System.out.println("Change myPort to...");
+				String input2 = "";
+				try {
+					input2 = br.readLine();
+					Peer.peerList.myPort = Integer.parseInt(input2);
+				} catch (IOException ioe) {
+				}		
 			}else if (input.toLowerCase().equals("insert")){
-		    	  System.out.println("what is the path of the file you want to insert?");
-		    	  String input2 = "";
-		    	  try {
-		    		  input2 = br.readLine();
-			    	  System.out.println("Telling peer to insert "+input2);
-			    	  peer.insert(input2);
-		    	  } catch (IOException ioe) {
-				  }
+				String input2 = "";
+				if (argv.length > 1){
+					input2 = argv[1];
+				}else{
+					System.out.println("what is the path of the file you want to insert?");
+					try {
+						input2 = br.readLine();
+					} catch (IOException ioe) {
+					}
+				}
+				System.out.println("Telling peer to insert "+input2);
+				peer.insert(input2);
+			}else if (input.toLowerCase().equals("insert")){
+				System.out.println("what is the path of the file you want to insert?");
+				String input2 = "";
+				try {
+					input2 = br.readLine();
+					System.out.println("Telling peer to insert "+input2);
+					peer.insert(input2);
+				} catch (IOException ioe) {
+				}
 			}else if(input.toLowerCase().equals("query")){
-		    	  System.out.println("Telling peer to query...");
-		    	  Status status = new Status();
-		    	  peer.query(status);
-		    	  System.out.println("Status contains info of "+status.numberOfFiles()+" files");
-		    	  for(Entry<String, Boolean> entry : FileManager.list.entrySet()){
-		    		  System.out.println("\t"+entry.getKey()+(entry.getValue()?" local":" remote"));
-		    	  }
+				System.out.println("Telling peer to query...");
+				Status status = new Status();
+				peer.query(status);
+				System.out.println("Status contains info of "+status.numberOfFiles()+" files");
+				for(Entry<String, HashMap<String, Boolean>> entry : FileManager.list.entrySet()){
+					System.out.print("\t"+entry.getKey()+"\t");
+					for (Entry<String, Boolean> e : entry.getValue().entrySet()){
+						System.out.print( e.getValue() ? "T" : "F");
+					}
+					System.out.println("");
+				}
 			}else if(input.toLowerCase().equals("join")){
-		    	  if(peer.join()== ReturnCodes.ERR_UNKNOWN_WARNING){
-		    		  System.out.println("Peer is already connected. Leave first.");
-		    	  }else{
-		    		  System.out.println("Telling peer to join...");
-		    	  }
+				if(peer.join()== ReturnCodes.ERR_UNKNOWN_WARNING){
+					System.out.println("Peer is already connected. Leave first.");
+				}else{
+					System.out.println("Telling peer to join...");
+				}
 			}else if(input.toLowerCase().equals("leave")){
-		    	  if(peer.leave()== ReturnCodes.ERR_UNKNOWN_WARNING){
-		    		  System.out.println("Peer is already not connected. Join first.");
-		    	  }else{
-		    		  System.out.println("Telling peer to leave...");
-		    	  }
+				if(peer.leave()== ReturnCodes.ERR_UNKNOWN_WARNING){
+					System.out.println("Peer is already not connected. Join first.");
+				}else{
+					System.out.println("Telling peer to leave...");
+				}
 			}else if(input.toLowerCase().equals("exit")){
-		    	  break;
+				break;
 			}else{
-		    	  System.out.println("Invalid command!");
+				System.out.println("Invalid command!");
 			}
 		}
 	}

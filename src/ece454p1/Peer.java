@@ -5,6 +5,8 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Peer and Status are the classes we really care about Peers is a container;
@@ -20,7 +22,7 @@ public class Peer {
 	public int insert(String filename){
 		System.out.println("Peer was told to insert " + filename);
 		// TODO: use the proper FileManager to insert new file
-		FileManager.list.put(filename, true);
+		FileManager.insertNewFile(filename);
 		
 		// if the peer is connected
 		// open a new connection to send a insert request for each connected peer
@@ -31,7 +33,7 @@ public class Peer {
 						Socket s = new Socket(p.host, p.port);
 						PrintStream ps = new PrintStream(s.getOutputStream());
 						ps.println("insert");
-						ps.println(filename);
+						ps.println(FileManager.getFileChunkString(filename));
 					} catch (UnknownHostException e) {
 					} catch (IOException e) {
 					}
