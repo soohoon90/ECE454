@@ -1,2 +1,6 @@
+bin/
+
+.class
+
 # OS X
 .DS_Store
