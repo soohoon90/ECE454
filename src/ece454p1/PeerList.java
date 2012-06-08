@@ -21,9 +21,9 @@ public class PeerList {
 		}
 	}
 	
-	public String myHost;
-	public int myPort;
-	public ArrayList<PeerInfo> peers;
+	public static String myHost;
+	public static int myPort;
+	public static ArrayList<PeerInfo> peers;
 	
 	public PeerList(String peersFile){
 		BufferedReader in = null;

@@ -69,24 +69,24 @@ public class PeerResponseThread extends Thread{
 				}else if(line.equals("chunk")){
 					System.out.println(">> PeerResponse: chunk request from " + fromHost);
 					String fileName = br.readLine();
-					if (fileName != ""){
-
-					}
-					String chunkName = fileName.split(",")[1];
+					int cn = Integer.parseInt(fileName.split(",")[1]);
 					fileName = fileName.split(",")[0];
-					PrintStream ps = new PrintStream(peerSocket.getOutputStream());
-					System.out.println(">> PeerResponse: We "+ (FileManager.list.get(fileName).containsKey(chunkName) ? "have " : " don't have ") + fileName+","+chunkName);
-					String fileData = fileName+peerSocket.getLocalPort()+peerSocket.getLocalPort();
-					// simulate delay
-					if (FileManager.list.get(fileName).containsKey(chunkName)){
-						try {
-							Thread.currentThread().sleep(5000);
-						} catch (InterruptedException e) {
-						}
-						ps.println(fileData);
+					OutputStream out = peerSocket.getOutputStream();
+					PrintStream ps = new PrintStream(out);
+					
+					System.out.println(">> PeerResponse: We "+ (FileManager.list.get(fileName).get(cn) ? "have " : " don't have ") + fileName+","+cn);
+					byte[] fileData = FileManager.fetchFileChunkData(fileName, cn);
+					if (FileManager.list.get(fileName).get(cn)){
+//						try {
+//							Thread.currentThread().sleep(5000);
+//						} catch (InterruptedException e) {
+//						}
+//						ps.println(fileData);
+						out.write(fileData);
 					}else{
 						// don't have it!
-						ps.println("");
+						out.write(0);
+//						ps.println("");
 					}
 				}else if(line.equals("leave")){
 					for (PeerList.PeerInfo pi : Peer.peerList.peers){
