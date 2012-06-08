@@ -22,19 +22,20 @@ public class PeerSyncThread extends Thread{
 	public Socket peerSocket;
 	public Queue<HashMap<String,String>> msgList;
 	public boolean running;
-	
+
 	public PeerSyncThread(){
 		running = true;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {	
 		System.out.println(">> PeerClient: started running");
-		
+
 		System.out.println(">> PeerSyncThread: joining...");
 		for(PeerList.PeerInfo p : Peer.peerList.peers){
 			System.out.println(">> PeerSyncThread: sending signal to... "+p.host);
+			System.out.println(">> PeerSyncThread: "+FileManager.getAllFileChunkString());
 			Socket s;
 			try {
 				s = new Socket(p.host, p.port);
@@ -51,21 +52,25 @@ public class PeerSyncThread extends Thread{
 			} catch (IOException e) {
 			}
 		}
-		
+
 		System.out.println(">> STATUS:");
 		for (PeerList.PeerInfo pi : Peer.peerList.peers){
 			System.out.println(">> \t"+pi.host+":"+pi.port+" is "+ (pi.connected ? "online" : "offline"));
 		}
-		
+		int i = 0;
 		while(running){
 			if (running == false){
 				break;
+			}else{
+				i++;
 			}
-			
+
 			// TODO: pick a new chunk to request
 			String remoteChunk = FileManager.getFileNotLocal();
 			// if request it to connected peers in PeerList
 			if (remoteChunk.equals("") == false){
+				String fn = remoteChunk.split(",")[0];
+				int cn = Integer.parseInt(remoteChunk.split(",")[1]);
 				String chunkData = "";
 				for(PeerList.PeerInfo p : Peer.peerList.peers){
 					if (p.connected == true){
@@ -77,14 +82,18 @@ public class PeerSyncThread extends Thread{
 							PrintStream ps = new PrintStream(s.getOutputStream());
 							ps.println("chunk");
 							ps.println(remoteChunk);
-							BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-							chunkData = br.readLine();
+							InputStream in = s.getInputStream();
+//							BufferedReader br = new BufferedReader(new InputStreamReader(in));
+							byte[] b = new byte[Config.CHUNK_SIZE];
+							in.read(b);
+							if (b.equals(0) == false) FileManager.writeFileChunkData(fn, cn, b);
+//							chunkData = br.readLine();
 							s.close();
-							if (chunkData.equals("") == false){
-								System.out.println(">> received file (" + remoteChunk + ") from "+p.host);
-								FileManager.list.get(remoteChunk.split(",")[0]).put(remoteChunk.split(",")[1], true);
-								break;
-							}
+//							if (chunkData.equals("") == false){
+							System.out.println(">> received file (" + fn + "," + cn + ") from "+p.host+":"+p.port);
+							
+							break;
+//							}
 						} catch (UnknownHostException e) {
 						} catch (IOException e) {
 						}
@@ -100,7 +109,7 @@ public class PeerSyncThread extends Thread{
 				}
 			}
 		}		
-		
+
 		System.out.println(">> PeerSyncThread: leaving...");
 		for(PeerList.PeerInfo p : Peer.peerList.peers){
 			if (p.connected == true){

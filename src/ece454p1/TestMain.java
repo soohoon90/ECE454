@@ -97,10 +97,10 @@ public class TestMain {
 				Status status = new Status();
 				peer.query(status);
 				System.out.println("Status contains info of "+status.numberOfFiles()+" files");
-				for(Entry<String, HashMap<String, Boolean>> entry : FileManager.list.entrySet()){
-					System.out.print("\t"+entry.getKey()+"\t");
-					for (Entry<String, Boolean> e : entry.getValue().entrySet()){
-						System.out.print( e.getValue() ? "T" : "F");
+				for(Entry<String, ArrayList<Boolean>> entry : FileManager.list.entrySet()){
+					System.out.print("\t"+entry.getKey()+"("+entry.getValue().size()+")\t");
+					for (Boolean e : entry.getValue()){
+						System.out.print( e ? "T" : "F");
 					}
 					System.out.println("");
 				}

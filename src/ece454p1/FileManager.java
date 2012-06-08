@@ -8,14 +8,14 @@ public class FileManager {
 
 	public static final String CHUNKS_PATH = "Chunks";
 	public static LocalFile lastFile;
-	public static HashMap<String, HashMap<String, Boolean>> list;
+	public static HashMap<String, ArrayList<Boolean>> list;
 
-	public static String getFileChunkString(String fileName){
-		if (list.containsKey(fileName)){
-			String fileChunkString = fileName;
-			for (String cn : list.get(fileName).keySet()){
-				fileChunkString += "," + cn;
-			}
+	public static String getFileChunkString(String fn){
+		if (list.containsKey(fn)){
+			String fileChunkString = fn;
+			//			for (String cn : list.get(fileName).keySet()){
+			fileChunkString += "," + list.get(fn).size();
+			//			}
 			return fileChunkString;
 		}
 		return "";
@@ -34,23 +34,30 @@ public class FileManager {
 		return sb.toString();
 	}
 
-	public static void insertNewFile(String fileName){
-		Random r = new Random();
-		HashMap<String, Boolean> chunks = new HashMap<String, Boolean>();
-		int numChunk = r.nextInt(3)+3;
-		for(int i = 0; i < numChunk; i++ ){
-			chunks.put("C"+i, true);
+	public static void insertNewFile(String fn){
+		//		Random r = new Random();
+		//		int numChunk = r.nextInt(3)+3;
+		//		HashMap<String, Boolean> chunks = new HashMap<String, Boolean>();
+		//		for(int i = 0; i < numChunk; i++ ){
+		//			chunks.put("C"+i, true);
+		//		}
+		File file = new File(fn);
+		long numChunk = file.length() / Config.CHUNK_SIZE;
+		ArrayList<Boolean> b = new ArrayList<Boolean>();
+		for(long i = 0; i < numChunk; i++ ){
+			b.add(true);
 		}
-		list.put(fileName, chunks);
-		System.out.println(getFileChunkString(fileName));
+		list.put(fn, b);
+		System.out.println(getFileChunkString(fn));
 	}
 
 	public static void parseAllFileChunkString(String multiple){
 		// there is multiple
+		System.out.println(multiple);
 		if (multiple != null){
 			if (multiple.indexOf(";") != -1){
 				for (String s : multiple.split(";")){
-					System.out.println(s);
+					System.out.println("\t"+s);
 					parseFileChunkString(s);
 				}
 			}else{
@@ -65,40 +72,81 @@ public class FileManager {
 			if (args.length > 1){
 				String fileName = args[0];
 				if ( list.containsKey(fileName) == false){
-					list.put(fileName, new HashMap<String, Boolean>());
-				}
-				for (int i = 1; i < args.length; i++){			
-					if (list.get(fileName).containsKey(args[i]) == false){
-						list.get(fileName).put(args[i], false);
+					ArrayList<Boolean> cn = new ArrayList<Boolean>();
+					for(int i = 0; i < Integer.parseInt(args[1]); i++){
+						cn.add(false);
 					}
+					list.put(fileName, cn);
 				}
+
+				//				if ( list.containsKey(fileName) == false){
+				//					list.put(fileName, new HashMap<String, Boolean>());
+				//				}
+				//				for (int i = 1; i < args.length; i++){			
+				//					if (list.get(fileName).containsKey(args[i]) == false){
+				//						list.get(fileName).put(args[i], false);
+				//					}
+				//				}
 			}
 		}
 	}
 
 	public static String getFileNotLocal(){
-
-		Iterator itor = list.keySet().iterator();
-		while(itor.hasNext()){
-			String fn = (String)itor.next();
-			HashMap<String, Boolean> c = list.get(fn);
-			Iterator itor2 = c.keySet().iterator();
-			while (itor2.hasNext()){
-				String cn = (String)itor2.next();
-				Boolean exist = c.get(cn);
-				String r = fn.concat(",").concat(cn);
-				if (exist == false){
-					return r;
+		for (String fn : list.keySet()){
+			for (int i = 0; i < list.get(fn).size(); i++){
+				if (list.get(fn).get(i) == false){
+					return fn.concat(",").concat(""+i);
 				}
 			}
 		}
-
 		return "";
+	}
+
+	public static byte[] fetchFileChunkData(String fn, int cn){
+//		System.out.println("fetching...");
+		// TODO: DATA
+		File file = new File(fn);
+		long filelength = file.length();
+		try {
+			RandomAccessFile raf = new RandomAccessFile(file, "r");
+			byte[] b = new byte[Config.CHUNK_SIZE];
+			raf.seek(Config.CHUNK_SIZE*cn);
+			raf.read(b);
+			raf.close();
+			return b;
+		} catch (FileNotFoundException e){
+			System.out.println("fetching...not found");
+		} catch (IOException e){
+			System.out.println("fetching...io exception");
+		}
+		return null;
+	}
+
+	public static void writeFileChunkData(String fn, int cn, byte[] b){
+//		System.out.println("writing...");
+		list.get(fn).set(cn, true);
+		// TODO: DATA
+		list.get(fn);
+		File file = new File(fn);
+		try {
+			RandomAccessFile raf = new RandomAccessFile(file, "rws");
+			raf.setLength(list.get(fn).size()*Config.CHUNK_SIZE);
+			raf.seek(Config.CHUNK_SIZE*cn);
+			raf.write(b);
+			raf.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("writing...notfound");
+		} catch (UnsupportedEncodingException e) {
+			System.out.println("writing...unsupported");
+		} catch (IOException e) {
+			System.out.println("writing...io");
+		} finally {
+		}
 	}
 
 	static {
 		File chunksDir = new File(CHUNKS_PATH);
-		list = new HashMap<String, HashMap<String, Boolean>>(); 
+		list = new HashMap<String, ArrayList<Boolean>>(); 
 
 		if (!chunksDir.exists()) {
 			chunksDir.mkdir();
