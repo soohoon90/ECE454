@@ -1,44 +1,22 @@
 package ece454p1;
 
 import java.io.*;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.*;
+import java.net.*;
 
-/**
- * Peer and Status are the classes we really care about Peers is a container;
- * feel free to do a different container
- */
 public class Peer implements Runnable {
 	
-	private String address;
+	private InetAddress address;
 	private int port;
-	private Socket socket;
+	private ArrayDeque<String> messages = new ArrayDeque<String>();
 	private ArrayList<String> chunks;
 	
-	public Peer(String address, int port) {
+	public Peer(InetAddress address, int port) {
 		this.address = address;
 		this.port = port;
 	}
 	
-	public void connect() {
-		try {
-			socket = new Socket(address, port);
-		} catch (IOException e) {
-			System.out.println("Unable to connect to " + address + ":" + Integer.toString(port));
-		}
-	}
-	
-	public void disconnect() {
-		try {
-			socket.close();
-		} catch (IOException e) {
-			System.out.println("Error closing socket");
-		}
-		socket = null;
-	}
-	
-	public String getAddress() {
+	public InetAddress getAddress() {
 		return address;
 	}
 	
@@ -46,27 +24,52 @@ public class Peer implements Runnable {
 		return port;
 	}
 	
-	public void send(String message) {
-		if (socket == null)
-			return;
-		
-		PrintStream out = null;
+	public void run() {
+		Socket socket = null;
+		PrintStream stream = null;
 		try {
-			out = new PrintStream(socket.getOutputStream());
+			socket = new Socket(address, port);
+			stream = new PrintStream(socket.getOutputStream());
+			System.out.println("Opened socket " + socket.getLocalAddress().getHostAddress() + ":" + Integer.toString(socket.getLocalPort()) + " <-> " + socket.getInetAddress().getHostAddress() + ":" + Integer.toString(socket.getPort()));
 		} catch (IOException e) {
-			System.out.println("Error writing to socket");
+			System.out.println("Unable to connect to " + this.toString());
 			return;
 		}
-		out.println(message);
+		
+		while (true) {
+			String message = null;
+			synchronized (this) {
+				if (messages.size() == 0) // Done
+					break;
+				message = messages.removeFirst();
+			}
+			
+			stream.print(message);
+		}
+		
+		try {
+			socket.close();
+		} catch (IOException e) {
+			System.out.println("Error closing socket to " + this.toString());
+		}
+		socket = null;
+	}
+	
+	public void send(String message) {
+		synchronized (this) {
+			messages.addLast(message);
+			
+			if (messages.size() == 1) {
+				new Thread(this).start();
+			}
+		}
 	}
 	
 	public String toString() {
-		return address + ":" + Integer.toString(port);
+		return address.getHostAddress() + ":" + Integer.toString(port);
 	}
 	
-	public void run() {
-		
-	}
+	
 	/*
 	public int insert(String filename){
 		System.out.println("Peer was told to insert " + filename);

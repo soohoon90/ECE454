@@ -45,12 +45,9 @@ public class FileManager {
 			for (int i = 0; i < chunked.numberOfChunks(); i++) {
 				chunk = new RandomAccessFile(new File(FileManager.CHUNKS_PATH, chunked.chunkName(i)), "rws");
 				
-				if (i == chunked.numberOfChunks() - 1) { // Last iteration
-					buffer = new byte[(int)(file.length() % Config.CHUNK_SIZE)];
-				}
-				src.read(buffer);
-				des.write(buffer);
-				chunk.write(buffer);
+				int len = src.read(buffer);
+				des.write(buffer, 0, len);
+				chunk.write(buffer, 0, len);
 				chunk.close();
 			}
 			chunk = null;
@@ -85,11 +82,8 @@ public class FileManager {
 			for (int i = 0; i < chunked.numberOfChunks(); i++) {
 				chunk = new RandomAccessFile(new File(FileManager.CHUNKS_PATH, chunked.chunkName(i)), "r");
 				
-				if (i == chunked.numberOfChunks() - 1) { // Last iteration
-					buffer = new byte[(int)(chunked.getSize() % Config.CHUNK_SIZE)];
-				}
-				chunk.read(buffer);
-				des.write(buffer);
+				int len = chunk.read(buffer);
+				des.write(buffer, 0, len);
 				chunk.close();
 			}
 			chunk = null;

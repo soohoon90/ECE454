@@ -2,12 +2,16 @@ package ece454p1;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 public class Main {
 	
 	private static FileManager manager = new FileManager();
 	private static Peer[] peers;
 	private static PeerServer server;
+	
+	public static InetAddress localAddress;
+	public static int localPort;
 	
 	private static void printUsageAndQuit(int code) {
 		System.out.println();
@@ -59,6 +63,14 @@ public class Main {
 					System.exit(1);
 				}
 				
+				InetAddress address = null;
+				try {
+					address = InetAddress.getByName(items[0]);
+				} catch (UnknownHostException e) {
+					System.out.println("Error parsing peer address");
+					System.exit(1);
+				}
+				
 				int port = -1;
 				try {
 					port = Integer.parseInt(items[1]);
@@ -68,9 +80,11 @@ public class Main {
 				}
 				
 				if (lineNumber == peerNumber) {
-					server = new PeerServer(port);
+					localAddress = address;
+					localPort = port;
+					server = new PeerServer();
 				} else {
-					peersList.add(new Peer(items[0], port));
+					peersList.add(new Peer(address, port));
 				}
 				lineNumber++;
 			}
@@ -126,6 +140,8 @@ public class Main {
 				Main.insert(lineArgs);
 			} else if (command.equals("leave")) {
 				Main.leave(lineArgs);
+			} else if (command.equals("echo")) {
+				Main.echo(lineArgs);
 			} else if (command.equals("list")) {
 				Main.list(lineArgs);
 			} else if (command.equals("rebuild")) {
@@ -138,10 +154,6 @@ public class Main {
 	
 	public static void join(String[] args) {
 		server.start();
-		
-		for (Peer peer : peers) {
-			peer.connect();
-		}
 	}
 	
 	public static void query(String[] args) {
@@ -157,6 +169,15 @@ public class Main {
 	
 	public static void leave(String[] args) {
 		server.stop();
+	}
+	
+	public static void echo(String[] args) {
+		if (args.length != 2)
+			return;
+		
+		for (Peer peer : peers) {
+			peer.send(args[1]);
+		}
 	}
 	
 	public static void list(String[] args) {
