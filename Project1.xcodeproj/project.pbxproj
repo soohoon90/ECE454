@@ -10,18 +10,17 @@
 		3D75FFB4158092E900F20539 /* ChunkedFile.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ChunkedFile.java; path = src/ece454p1/ChunkedFile.java; sourceTree = "<group>"; };
 		3D75FFB5158092E900F20539 /* Config.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Config.java; path = src/ece454p1/Config.java; sourceTree = "<group>"; };
 		3D75FFB6158092E900F20539 /* FileManager.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = FileManager.java; path = src/ece454p1/FileManager.java; sourceTree = "<group>"; };
-		3D75FFB7158092E900F20539 /* LocalFile.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = LocalFile.java; path = src/ece454p1/LocalFile.java; sourceTree = "<group>"; };
 		3D75FFB8158092E900F20539 /* Peer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Peer.java; path = src/ece454p1/Peer.java; sourceTree = "<group>"; };
 		3D75FFB9158092E900F20539 /* PeerList.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerList.java; path = src/ece454p1/PeerList.java; sourceTree = "<group>"; };
 		3D75FFBA158092E900F20539 /* PeerResponseThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerResponseThread.java; path = src/ece454p1/PeerResponseThread.java; sourceTree = "<group>"; };
 		3D75FFBB158092E900F20539 /* PeerServerThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerServerThread.java; path = src/ece454p1/PeerServerThread.java; sourceTree = "<group>"; };
 		3D75FFBC158092E900F20539 /* PeerSyncThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerSyncThread.java; path = src/ece454p1/PeerSyncThread.java; sourceTree = "<group>"; };
-		3D75FFBD158092E900F20539 /* RemoteFile.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = RemoteFile.java; path = src/ece454p1/RemoteFile.java; sourceTree = "<group>"; };
 		3D75FFBE158092E900F20539 /* ReturnCodes.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ReturnCodes.java; path = src/ece454p1/ReturnCodes.java; sourceTree = "<group>"; };
 		3D75FFBF158092E900F20539 /* Status.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Status.java; path = src/ece454p1/Status.java; sourceTree = "<group>"; };
 		3D75FFC0158092E900F20539 /* TestMain.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = TestMain.java; path = src/ece454p1/TestMain.java; sourceTree = "<group>"; };
 		3D75FFC31580954300F20539 /* peers.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = peers.txt; sourceTree = "<group>"; };
 		3D75FFC41580AC5600F20539 /* PeerServer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = PeerServer.java; path = src/ece454p1/PeerServer.java; sourceTree = "<group>"; };
+		3D75FFD21581CEE100F20539 /* Main.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Main.java; path = src/ece454p1/Main.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -47,19 +46,26 @@
 				3D75FFB4158092E900F20539 /* ChunkedFile.java */,
 				3D75FFB5158092E900F20539 /* Config.java */,
 				3D75FFB6158092E900F20539 /* FileManager.java */,
-				3D75FFB7158092E900F20539 /* LocalFile.java */,
+				3D75FFD21581CEE100F20539 /* Main.java */,
 				3D75FFB8158092E900F20539 /* Peer.java */,
 				3D75FFC41580AC5600F20539 /* PeerServer.java */,
+				3D75FFBF158092E900F20539 /* Status.java */,
+				3D75FFD11581CE9D00F20539 /* unused */,
+			);
+			name = ece454p1;
+			sourceTree = "<group>";
+		};
+		3D75FFD11581CE9D00F20539 /* unused */ = {
+			isa = PBXGroup;
+			children = (
 				3D75FFB9158092E900F20539 /* PeerList.java */,
 				3D75FFBA158092E900F20539 /* PeerResponseThread.java */,
 				3D75FFBB158092E900F20539 /* PeerServerThread.java */,
 				3D75FFBC158092E900F20539 /* PeerSyncThread.java */,
-				3D75FFBD158092E900F20539 /* RemoteFile.java */,
 				3D75FFBE158092E900F20539 /* ReturnCodes.java */,
-				3D75FFBF158092E900F20539 /* Status.java */,
 				3D75FFC0158092E900F20539 /* TestMain.java */,
 			);
-			name = ece454p1;
+			name = unused;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -67,7 +73,7 @@
 /* Begin PBXLegacyTarget section */
 		3D75FF9C158090EE00F20539 /* Project1 */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "ChunkedFile.java Config.java FileManager.java LocalFile.java Peer.java PeerServer.java PeerList.java PeerResponseThread.java PeerServerThread.java PeerSyncThread.java RemoteFile.java ReturnCodes.java Status.java TestMain.java";
+			buildArgumentsString = "ChunkedFile.java Config.java FileManager.java Main.java Peer.java PeerServer.java Status.java";
 			buildConfigurationList = 3D75FF9F158090EE00F20539 /* Build configuration list for PBXLegacyTarget "Project1" */;
 			buildPhases = (
 			);
