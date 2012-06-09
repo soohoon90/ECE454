@@ -2,255 +2,118 @@ package ece454p1;
 
 import java.io.*;
 import java.util.*;
-import java.util.Map.Entry;
 
 /*
- public ArrayList<String> getLocalChunks();
- public ArrayList<ChunkedFile> getLocalFiles();
- public void importFile(String filename);
- public byte[] readChunk(ChunkedFile file, int cn);
- public void wrtieChunk(ChunkedFile file, int cn, byte[] data);
- */
+public ArrayList<String> getLocalChunks();
+public ArrayList<ChunkedFile> getLocalFiles();
+public void importFile(String filename);
+public byte[] readChunk(ChunkedFile file, int cn);
+public void wrtieChunk(ChunkedFile file, int cn, byte[] data);
+
+I think this might be easier to use for me:
+public void importFile(String filename);
+public String getFileList();
+public String getChunkList();
+public void parseFileList(String fileList);
+public void parseChunkList(String chunkList);
+public byte[] readChunkData(String chunkID);
+public void writeChunkData(String chunkID, byte[] chunkData);
+*/
 
 public class FileManager {
 
 	public static final String CHUNKS_PATH = "Chunks";
-	public static LocalFile lastFile;
-	public static HashMap<String, ArrayList<Boolean>> list;
 
-	public static String getFileChunkString(String fn){
-		if (list.containsKey(fn)){
-			String fileChunkString = fn;
-			//			for (String cn : list.get(fileName).keySet()){
-			fileChunkString += "," + list.get(fn).size();
-			//			}
-			return fileChunkString;
-		}
-		return "";
-	}
+	public ArrayList<ChunkedFile> files = new ArrayList<ChunkedFile>();
 
-	public static String getAllFileChunkString(){
-		StringBuilder sb = new StringBuilder();
-		Iterator iter = list.keySet().iterator();
-		while (iter.hasNext()) {
-			String fn = (String) iter.next();
-			sb.append(getFileChunkString(fn));
-			if (iter.hasNext()){
-				sb.append(";");
-			}
-		}
-		return sb.toString();
-	}
+	public FileManager() {
 
-	public static void insertNewFile(String fn){
-		//		Random r = new Random();
-		//		int numChunk = r.nextInt(3)+3;
-		//		HashMap<String, Boolean> chunks = new HashMap<String, Boolean>();
-		//		for(int i = 0; i < numChunk; i++ ){
-		//			chunks.put("C"+i, true);
-		//		}
-		File file = new File(fn);
-		long numChunk = file.length() / Config.CHUNK_SIZE;
-		ArrayList<Boolean> b = new ArrayList<Boolean>();
-		for(long i = 0; i < numChunk; i++ ){
-			b.add(true);
-		}
-		list.put(fn, b);
-		System.out.println(getFileChunkString(fn));
-	}
-
-	public static void parseAllFileChunkString(String multiple){
-		// there is multiple
-		System.out.println(multiple);
-		if (multiple != null){
-			if (multiple.indexOf(";") != -1){
-				for (String s : multiple.split(";")){
-					System.out.println("\t"+s);
-					parseFileChunkString(s);
-				}
-			}else{
-				parseFileChunkString(multiple);
-			}		
-		}
-	}
-
-	public static void parseFileChunkString(String fileChunkString){
-		if (fileChunkString != null){
-			String args[] = fileChunkString.split(",");
-			if (args.length > 1){
-				String fileName = args[0];
-				if ( list.containsKey(fileName) == false){
-					ArrayList<Boolean> cn = new ArrayList<Boolean>();
-					for(int i = 0; i < Integer.parseInt(args[1]); i++){
-						cn.add(false);
-					}
-					list.put(fileName, cn);
-				}
-
-				//				if ( list.containsKey(fileName) == false){
-				//					list.put(fileName, new HashMap<String, Boolean>());
-				//				}
-				//				for (int i = 1; i < args.length; i++){			
-				//					if (list.get(fileName).containsKey(args[i]) == false){
-				//						list.get(fileName).put(args[i], false);
-				//					}
-				//				}
-			}
-		}
-	}
-
-	public static String getFileNotLocal(){
-		for (String fn : list.keySet()){
-			for (int i = 0; i < list.get(fn).size(); i++){
-				if (list.get(fn).get(i) == false){
-					return fn.concat(",").concat(""+i);
-				}
-			}
-		}
-		return "";
-	}
-
-	public static byte[] fetchFileChunkData(String fn, int cn){
-//		System.out.println("fetching...");
-		// TODO: DATA
-		File file = new File(fn);
-		long filelength = file.length();
-		try {
-			RandomAccessFile raf = new RandomAccessFile(file, "r");
-			byte[] b = new byte[Config.CHUNK_SIZE];
-			raf.seek(Config.CHUNK_SIZE*cn);
-			raf.read(b);
-			raf.close();
-			return b;
-		} catch (FileNotFoundException e){
-			System.out.println("fetching...not found");
-		} catch (IOException e){
-			System.out.println("fetching...io exception");
-		}
-		return null;
-	}
-
-	public static void writeFileChunkData(String fn, int cn, byte[] b){
-//		System.out.println("writing...");
-		list.get(fn).set(cn, true);
-		// TODO: DATA
-		list.get(fn);
-		File file = new File(fn);
-		try {
-			RandomAccessFile raf = new RandomAccessFile(file, "rws");
-			raf.setLength(list.get(fn).size()*Config.CHUNK_SIZE);
-			raf.seek(Config.CHUNK_SIZE*cn);
-			raf.write(b);
-			raf.close();
-		} catch (FileNotFoundException e) {
-			System.out.println("writing...notfound");
-		} catch (UnsupportedEncodingException e) {
-			System.out.println("writing...unsupported");
-		} catch (IOException e) {
-			System.out.println("writing...io");
-		} finally {
-		}
-	}
-
-	static {
+		// Create the chunk directory
 		File chunksDir = new File(CHUNKS_PATH);
-		list = new HashMap<String, ArrayList<Boolean>>(); 
 
 		if (!chunksDir.exists()) {
 			chunksDir.mkdir();
 		}
-	}
 
-	public static void main(String[] args) {
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		// Start with what's in the working directory
+		File pwd = new File(".");
 
-		while (true) {
-			String line = "";
-
-			System.out.print("> ");
-			try {
-				line = in.readLine();
-			} catch (IOException e) {
-				System.out.println("Error reading input");
-				System.exit(1);
-			}
-
-			if (line.equals("exit")) {
-				System.exit(0);
-			} else if (line.equals("rebuild")) {
-				FileManager.rebuildLastFile();
-			} else {
-				lastFile = FileManager.addFile(line);
+		String[] filenames = pwd.list();
+		for (String filename : filenames) {
+			File file = new File(filename);
+			if (!file.isDirectory() && !file.isHidden()) {
+				files.add(new ChunkedFile(file.getName(), file.length()));
 			}
 		}
 	}
 
-	public static LocalFile addFile(String filename) {
-		File srcFile = new File(filename);
-		File desFile = new File(srcFile.getName());
-
-		LocalFile local = new LocalFile(srcFile.getName(), srcFile.length());
+	public ChunkedFile importFile(String filename) {
+		File file = new File(filename);
+		ChunkedFile chunked = new ChunkedFile(file.getName(), file.length());
 
 		RandomAccessFile src = null;
 		RandomAccessFile des = null;
+		RandomAccessFile chunk = null;
 		try {
-			if (!desFile.exists()) {
-				desFile.createNewFile();
-			}
-
-			src = new RandomAccessFile(srcFile, "r");
-			des = new RandomAccessFile(desFile, "rws");
+			src = new RandomAccessFile(file, "r");
+			des = new RandomAccessFile(new File(chunked.getName()), "rws");
 
 			byte[] buffer = new byte[Config.CHUNK_SIZE];
-			for (int i = 0; i < local.numberOfChunks(); i++) {
-				int len = src.read(buffer);
-				local.writeChunk(i, buffer, len);
-				des.write(buffer, 0, len);
-			}
+			for (int i = 0; i < chunked.numberOfChunks(); i++) {
+				chunk = new RandomAccessFile(new File(FileManager.CHUNKS_PATH, chunked.chunkName(i)), "rws");
 
-			return local;
+				int len = src.read(buffer);
+				des.write(buffer, 0, len);
+				chunk.write(buffer, 0, len);
+				chunk.close();
+			}
+			chunk = null;
 		} catch (IOException e) {
-			System.out.println("Error importing file");
+			System.out.println("Error importing file " + filename);
+			return null;
 		} finally {
 			try {
 				if (src != null)
 					src.close();
 				if (des != null)
 					des.close();
+				if (chunk != null)
+					chunk.close();
 			} catch (IOException e) {
-
+				System.out.println("Error: failed to close all files during import");
 			}
 		}
-		return null;
+		files.add(chunked);
+		return chunked;
 	}
 
-	public static void rebuildLastFile() {
-		if (lastFile == null)
-			return;
-
-		File desFile = new File(lastFile.getName());
+	public void rebuildFile(ChunkedFile chunked) {
+		File file = new File(chunked.getName());
 
 		RandomAccessFile des = null;
+		RandomAccessFile chunk = null;
 		try {
-			if (!desFile.exists()) {
-				desFile.createNewFile();
+			des = new RandomAccessFile(new File(chunked.getName()), "rws");
+
+			byte[] buffer = new byte[Config.CHUNK_SIZE];
+			for (int i = 0; i < chunked.numberOfChunks(); i++) {
+				chunk = new RandomAccessFile(new File(FileManager.CHUNKS_PATH, chunked.chunkName(i)), "r");
+
+				int len = chunk.read(buffer);
+				des.write(buffer, 0, len);
+				chunk.close();
 			}
-
-			des = new RandomAccessFile(new File(lastFile.getName()), "rws");
-
-			for (int i = 0; i < lastFile.numberOfChunks(); i++) {
-				byte[] data = lastFile.readChunk(i);
-				des.write(data);
-			}
-
+			chunk = null;
 		} catch (IOException e) {
-			System.out.println("Error rebuilding file " + lastFile.getName());
+			System.out.println("Error rebuilding file " + chunked.getName());
 		} finally {
 			try {
 				if (des != null)
 					des.close();
+				if (chunk != null)
+					chunk.close();
 			} catch (IOException e) {
-
+				System.out.println("Error: failed to close all files during rebuild");
 			}
 		}
 	}

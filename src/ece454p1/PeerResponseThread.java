@@ -40,63 +40,34 @@ public class PeerResponseThread extends Thread{
 			BufferedReader br = new BufferedReader(new InputStreamReader(peerSocket.getInputStream()));
 			String line = br.readLine();
 			if( line != null ){
-				if (line.equals("insert")){
-					String filename = br.readLine();
-					if (filename.length() > 0){
-						System.out.println(">> PeerResponse: INSERT request for " + filename);
-						if (FileManager.list.containsKey(filename) == false){
-							System.out.println(">> PeerResponse: inserting " + filename + "...");
-							FileManager.parseFileChunkString(filename);
-						}else{
-							System.out.println(">> PeerResponse: already exists!");
-						}
-					}
-				}else if(line.equals("join")){
-					System.out.println(">> PeerResponse: JOIN request from " + fromHost);
-					for (PeerList.PeerInfo pi : Peer.peerList.peers){
-						if (pi.host.equals(fromHost)){
-							System.out.println(">> PeerResponse: "+pi.host+":"+pi.port+" joined.");
-							pi.connected = true;		
-							String linee = br.readLine();
-							FileManager.parseAllFileChunkString(linee);
-							PrintStream ps = new PrintStream(peerSocket.getOutputStream());
-							ps.println(FileManager.getAllFileChunkString());
-						}
-					}
-					for (PeerList.PeerInfo pi : Peer.peerList.peers){
-						System.out.println(">> \t"+pi.host+":"+pi.port+" is "+ (pi.connected ? "online" : "offline"));
-					}
-				}else if(line.equals("chunk")){
-					System.out.println(">> PeerResponse: chunk request from " + fromHost);
-					String fileName = br.readLine();
-					int cn = Integer.parseInt(fileName.split(",")[1]);
-					fileName = fileName.split(",")[0];
-					OutputStream out = peerSocket.getOutputStream();
-					PrintStream ps = new PrintStream(out);
+				if(line.equals("update")){
+					// update request comes will file listing and chunk listing
 					
-					System.out.println(">> PeerResponse: We "+ (FileManager.list.get(fileName).get(cn) ? "have " : " don't have ") + fileName+","+cn);
-					byte[] fileData = FileManager.fetchFileChunkData(fileName, cn);
-					if (FileManager.list.get(fileName).get(cn)){
-//						try {
-//							Thread.currentThread().sleep(5000);
-//						} catch (InterruptedException e) {
-//						}
-//						ps.println(fileData);
-						out.write(fileData);
-					}else{
-						// don't have it!
-						out.write(0);
-//						ps.println("");
-					}
+
+				}else if(line.equals("chunk")){
+					// chunk request has the format of:
+					// 		ip
+					// 		port
+					// 		chunkid
+					String ip = br.readLine();
+					int port = Integer.parseInt(br.readLine());
+					String chunkID = br.readLine();
+					
+					// debug
+					System.out.println(">> PeerResponse: chunk request from " + ip+":"+port+" for "+chunkID);
+					
+					PrintStream ps = new PrintStream(peerSocket.getOutputStream());
+//					out.write(FileManager.fetchFileChunkData(fileName, cn));
 				}else if(line.equals("leave")){
-					for (PeerList.PeerInfo pi : Peer.peerList.peers){
-						if (pi.host.equals(fromHost)){
-							System.out.println(">> PeerResponse: "+pi.host+":"+pi.port+" left.");
-							pi.connected = false;
+					// leave request has the format of:
+					// ip\nport
+					String ip = br.readLine();
+					int port = Integer.parseInt(br.readLine());
+					for (ProxyPeer p : Peer.proxyPeerList){
+						if (p.host.getHostAddress().equals(ip) && p.port == port){
+							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" left.");
+							p.connected = false;
 						}
-					}
-					for (PeerList.PeerInfo pi : Peer.peerList.peers){
-						System.out.println(">> \t"+pi.host+":"+pi.port+" is "+ (pi.connected ? "online" : "offline"));
 					}
 				}
 			}

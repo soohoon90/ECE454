@@ -2,6 +2,7 @@ package ece454p1;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -14,32 +15,25 @@ import java.util.Random;
  */
 public class Peer {
 	
-	public Peer(PeerList peerList){
-		currentState = State.disconnected;
-		this.peerList = peerList;
-	}
+	public static InetAddress localAddress;
+	public static int localPort;
+	public static FileManager fileManager;
+	public static State currentState;
+	public static ArrayList<ProxyPeer> proxyPeerList;
+	public static ServerThread serverThread;
 	
+	public Peer(ArrayList<ProxyPeer> ppl) {
+		currentState = State.disconnected;
+		proxyPeerList = ppl; 
+	}
+
 	public int insert(String filename){
 		System.out.println("Peer was told to insert " + filename);
 		// TODO: use the proper FileManager to insert new file
-		FileManager.insertNewFile(filename);
+//		fileManager.importFile(filename);
 		
-		// if the peer is connected
-		// open a new connection to send a insert request for each connected peer
-		if (currentState == State.connected){
-			for(PeerList.PeerInfo p : Peer.peerList.peers){
-				if (p.connected == true){
-					try {
-						Socket s = new Socket(p.host, p.port);
-						PrintStream ps = new PrintStream(s.getOutputStream());
-						ps.println("insert");
-						ps.println(FileManager.getFileChunkString(filename));
-					} catch (UnknownHostException e) {
-					} catch (IOException e) {
-					}
-				}
-			}
-		}
+		
+		
 		// PeerInsertNotifierThread p = new PeerInsertNotifierThread(filename);
 		return 0;
 	}
@@ -71,16 +65,9 @@ public class Peer {
 		//							  request for file chunk
 		//									get file chunk response
 		//										will request update w/file list
-		peerServerThread = new PeerServerThread(peerList.myPort);
-		peerServerThread.start();
+		serverThread = new ServerThread(localPort);
+		serverThread.start();
 		
-		// launch the sync thread that will
-		// tell everyone that we joined
-		// then synchronize file list
-		// then loop until it all files are in sync
-		peerSyncThread = new PeerSyncThread();
-		peerSyncThread.start();
-
 		currentState = State.connected;
 		return ReturnCodes.ERR_OK;
 	}
@@ -90,14 +77,12 @@ public class Peer {
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
 		}
 
-		// SyncThread will send leave to everyone
-		peerSyncThread.running = false;
-		peerServerThread.running = false;
-		
-		// ServerThread is still blocked waiting for a connection
-		// Let's send a false connection
+		// Set the ServerThread's while loop to end
+		serverThread.running = false;
+		// ServerThread is still waiting for a connection
+		// Let's send a false connection to shut it down
 		try {
-			Socket s = new Socket(peerList.myHost, peerList.myPort);
+			Socket s = new Socket(localAddress, localPort);
 			s.close();
 		} catch (Exception e) {
 		}
@@ -112,13 +97,10 @@ public class Peer {
 	 * if you don't like it.
 	 */
 
-	private enum State {
+	public enum State {
 		connected, disconnected
 	};
 
-	private State currentState;
-	public static PeerList peerList;
-	public static PeerServerThread peerServerThread;
-	public static PeerSyncThread peerSyncThread;
+//	public static PeerSyncThread peerSyncThread;
 
 }

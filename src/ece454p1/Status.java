@@ -13,8 +13,10 @@ import java.util.Map.Entry;
  **/
 public class Status {
 
+	int numLocallyPresent;
+
+	
 	public Status(){
-		this.numFiles = FileManager.list.size();
 	}
 	
 	public int numberOfFiles(){
@@ -23,14 +25,7 @@ public class Status {
 
 	/*Use -1 to indicate if the file requested is not present*/
 	public float fractionPresentLocally(int fileNumber){
-		if (fileNumber > numFiles || fileNumber < 0){
-			return -1;
-		}
-		Map.Entry<String, Boolean> entry = (Entry<String, Boolean>) FileManager.list.entrySet().toArray()[fileNumber];
-		if (entry.getValue() == true){
-			return 1;
-		}
-		return 0;
+		return -1;
 	}
 
 	/*Use -1 to indicate if the file requested is not present*/
@@ -38,7 +33,6 @@ public class Status {
 		if (fileNumber > numFiles || fileNumber < 0){
 			return -1;
 		}
-		
 		
 		return 0;
 	}
@@ -49,7 +43,6 @@ public class Status {
 			return -1;
 		}
 		
-		
 		return 0;
 	}
 	
@@ -58,7 +51,6 @@ public class Status {
 		if (fileNumber > numFiles || fileNumber < 0){
 			return -1;
 		}
-		
 		
 		return 0;
 	}

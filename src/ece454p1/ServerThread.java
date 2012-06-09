@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
 
-public class PeerServerThread extends Thread{
+public class ServerThread extends Thread{
 
 	public ServerSocket sSocket;
 	public int myPort;
 	public boolean running;
 	ArrayList<Thread> tList;
 	
-	public PeerServerThread(int p) {
+	public ServerThread(int p) {
 		tList = new ArrayList<Thread>();
 		running = true;
 		myPort = p;
