@@ -4,6 +4,14 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+/*
+ public ArrayList<String> getLocalChunks();
+ public ArrayList<ChunkedFile> getLocalFiles();
+ public void importFile(String filename);
+ public byte[] readChunk(ChunkedFile file, int cn);
+ public void wrtieChunk(ChunkedFile file, int cn, byte[] data);
+ */
+
 public class FileManager {
 
 	public static final String CHUNKS_PATH = "Chunks";
