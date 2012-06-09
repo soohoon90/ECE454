@@ -43,7 +43,7 @@ public class ProxyPeer extends Thread{
 		Socket socket = null;
 		try {
 			socket = new Socket(host, port);
-			
+			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintStream ps = new PrintStream(socket.getOutputStream());
 			// while there are messages to be sent
 			// grab the first one and act on it
@@ -60,19 +60,33 @@ public class ProxyPeer extends Thread{
 				ps.println(Peer.localAddress.getHostAddress());
 				ps.println(Peer.localPort);
 				// depending on the command, send more lines
-				if (message.equals("update")){
-					// update request will include file listing and chunk listing
-					// TODO: 
+				if (message.equals("join")){
 					
+				}if (message.equals("leave")){
+					
+				}else if (message.equals("update")){
+					// update request will include file listing and chunk listing
+					// TODO: use FileManager's getFileList() and getChunkList()
+					// ps.println(Peer.fileManager.getFileList());
+					// ps.println(Peer.fileManager.getChunkList());
+					// TODO: use FileManager's parseFileList() and parseChunkList();
+					// Peer.fileManager.parseFileList(br.readLine());
+					// Peer.fileManager.parseChunkList(br.readLine());
+					// NOTE: if FileManager detects a new (previously unknown) global file,
+					// it will push another update to the its peers.
 				}else if(message.equals("chunk")){
 					// chunk request need to send chunkID
 					String chunkID = "";
 					// String chunkID = SyncManager.grabNextChunkToRequest();
 					ps.println(chunkID);
+					
 					// the request will now wait for the chunkData
+					// inputStream is used instead of BufferedReader
+					// because this is byte array
 					byte[] chunkData = new byte[Config.CHUNK_SIZE];
 					socket.getInputStream().read(chunkData);
-					// TODO: handle the chunkDATA
+					// TODO: write the chunkDATA to chunk file
+					// when a write completes, FM will push a new chunk request to our queue
 					// FileManager.writeChunkData(chunkID, chunkData);
 				}
 			}
@@ -80,7 +94,6 @@ public class ProxyPeer extends Thread{
 			System.out.println("Unable to connect to " + this.toString());
 			return;
 		}
-
 
 		try {
 			socket.close();

@@ -11,13 +11,16 @@ public byte[] readChunk(ChunkedFile file, int cn);
 public void wrtieChunk(ChunkedFile file, int cn, byte[] data);
 
 I think this might be easier to use for me:
-public void importFile(String filename);
-public String getFileList();
-public String getChunkList();
-public void parseFileList(String fileList);
-public void parseChunkList(String chunkList);
-public byte[] readChunkData(String chunkID);
-public void writeChunkData(String chunkID, byte[] chunkData);
+	public int importFile(String filename);									// return 0 for ok, return 1 for already exist, return -1 for non existing file
+	public String getFileList();											// synchronized global, returned as 1 string
+	public String getChunkList();											// all locally available, returned as 1 string
+	public void parseFileList(String fileList);								// global list doesn't matter who sent it, check for new file, if so, send update to all
+	public void parseChunkList(String ip, int port, String chunkList); 		// will update a remote's
+	public byte[] readChunkData(String chunkID);							// return null for non existing chunk 
+	public void writeChunkData(String chunkID, byte[] chunkData);			// overwrite if already exist?
+																			// will push an "update" to all to say we got a new chunk
+																			// Also, it will push a new "chunk" request to this peer
+																			// maybe we need ip and port of this peer
 */
 
 public class FileManager {

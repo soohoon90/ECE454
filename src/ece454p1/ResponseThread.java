@@ -15,10 +15,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
-public class PeerResponseThread extends Thread{
+public class ResponseThread extends Thread{
 	Socket peerSocket;
 
-	public PeerResponseThread(Socket s){
+	public ResponseThread(Socket s){
 		peerSocket = s;
 	}
 
@@ -39,6 +39,8 @@ public class PeerResponseThread extends Thread{
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(peerSocket.getInputStream()));
 			String line = br.readLine();
+			String ip = br.readLine();
+			int port = Integer.parseInt(br.readLine());
 			if( line != null ){
 				if(line.equals("update")){
 					// update request comes will file listing and chunk listing
@@ -49,20 +51,23 @@ public class PeerResponseThread extends Thread{
 					// 		ip
 					// 		port
 					// 		chunkid
-					String ip = br.readLine();
-					int port = Integer.parseInt(br.readLine());
 					String chunkID = br.readLine();
 					
 					// debug
 					System.out.println(">> PeerResponse: chunk request from " + ip+":"+port+" for "+chunkID);
 					
 					PrintStream ps = new PrintStream(peerSocket.getOutputStream());
-//					out.write(FileManager.fetchFileChunkData(fileName, cn));
+					// OutputStrem is used instead of PrintStream because this is Byte[]
+					// TODO: use FileManager's readChunkData
+					// out.write(FileManager.readChunkData(chunkID));
+				}else if(line.equals("join")){
+					for (ProxyPeer p : Peer.proxyPeerList){
+						if (p.host.getHostAddress().equals(ip) && p.port == port){
+							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" joined.");
+							p.connected = true;
+						}
+					}
 				}else if(line.equals("leave")){
-					// leave request has the format of:
-					// ip\nport
-					String ip = br.readLine();
-					int port = Integer.parseInt(br.readLine());
 					for (ProxyPeer p : Peer.proxyPeerList){
 						if (p.host.getHostAddress().equals(ip) && p.port == port){
 							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" left.");

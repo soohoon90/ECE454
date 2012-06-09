@@ -34,7 +34,7 @@ public class ServerThread extends Thread{
 			}			
 			
 //	        System.out.println(">> PeerServer: Spawning to handle new Request from "+fromPeer.getInetAddress()+":"+fromPeer.getPort()+"!");
-	        Thread t = new PeerResponseThread(fromPeer);
+	        Thread t = new ResponseThread(fromPeer);
 	        tList.add(t);
 	        t.start();
 		}
