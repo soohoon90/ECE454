@@ -19,7 +19,7 @@ public class ProxyPeer implements Runnable {
 	}
 
 	public void run() {
-		System.out.println("Proxy " + this.toString() + " started running");
+		//System.out.println("Proxy " + this.toString() + " started running");
 		
 		while (true) {
 			String command = null;
@@ -33,7 +33,7 @@ public class ProxyPeer implements Runnable {
 			try {
 				socket = new Socket(host, port);
 			} catch (IOException e) {
-				System.out.println("Unable to connect to " + this.toString());
+				//System.out.println("Unable to connect to " + this.toString());
 				break;
 			}
 			
@@ -48,7 +48,7 @@ public class ProxyPeer implements Runnable {
 			}
 			
 			try {
-				System.out.println("Sending '" + command + "' to " + this.toString());
+				System.out.println("Starting request '" + command + "' to " + this.toString());
 				out.println(command);
 				out.println(Peer.localAddress.getHostAddress());
 				out.println(Peer.localPort);
@@ -65,15 +65,16 @@ public class ProxyPeer implements Runnable {
 					out.println(Peer.syncManager.getChunkList());
 				} else if (command.equals("chunk")) {
 					// Request
-					System.out.println("Requesting chunk " + nextChunk + " from " + this.toString());
 					out.println(nextChunk);
 					
 					// Reply
-					int len = Integer.parseInt(in.readLine());
-					byte[] data = new byte[len];
-					int off = 0;
-					while (off < len) {
-						off += socket.getInputStream().read(data, off, len - off);
+					InputStream is = socket.getInputStream();
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					byte[] buffer = new byte[Config.CHUNK_SIZE];
+					while (true) {
+						int len = is.read(buffer);
+						if (len == -1) break;
+						baos.write(buffer, 0, len);
 					}
 					
 					String chunk = null;
@@ -81,11 +82,11 @@ public class ProxyPeer implements Runnable {
 						chunk = nextChunk;
 						nextChunk = null;
 					}
-					Peer.syncManager.writeChunkData(chunk, data);
-					System.out.println("Finished requesting chunk " + chunk + " from " + this.toString());
+					Peer.syncManager.writeChunkData(chunk, baos.toByteArray());
 				} else if (command.equals("echo")) {
 					out.println("echo");
 				}
+				System.out.println("Finished request '" + command + "' to " + this.toString());
 			} catch (IOException e) {
 				System.out.println("Stream exception to " + this.toString());
 				break;
@@ -97,9 +98,9 @@ public class ProxyPeer implements Runnable {
 				System.out.println("Error closing socket to " + this.toString());
 				break;
 			}
-			System.out.println("Closed socket to " + this.toString());
+			//System.out.println("Closed socket to " + this.toString());
 		}
-		System.out.println("Proxy " + this.toString() + " stopped running");
+		//System.out.println("Proxy " + this.toString() + " stopped running");
 	}
 	
 	private void enqueue(String command) {
