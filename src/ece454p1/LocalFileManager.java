@@ -72,6 +72,7 @@ public class LocalFileManager {
 				chunk = new RandomAccessFile(new File(LocalFileManager.CHUNKS_PATH, chunked.chunkName(i)), "rws");
 				
 				int len = src.read(buffer);
+				if (len == -1) len = 0;
 				des.write(buffer, 0, len);
 				chunk.write(buffer, 0, len);
 				chunk.close();

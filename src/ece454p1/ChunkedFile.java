@@ -50,7 +50,7 @@ public class ChunkedFile /* TODO: implements Serializable */ {
 	}
 	
 	public String toString() {
-		return filename + "<" + Long.toString(size) + " bytes>";
+		return filename + ":" + Long.toString(size);
 	}
 	
 	public static int numberOfChunksForFileSize(long fileSize) {

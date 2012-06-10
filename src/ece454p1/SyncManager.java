@@ -87,6 +87,15 @@ public class SyncManager {
 		return buffer.toString();
 	}
 	
+	/*
+	 * Debug
+	 */
+	public synchronized void listGlobalFiles() {
+		for (ChunkedFile file : globalFiles) {
+			System.out.println(file);
+		}
+	}
+	
 	/**
 	 *
 	 */

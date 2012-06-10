@@ -153,27 +153,18 @@ public class TestMain {
 		String input = "";
 		while(true){
 			System.out.print("COMMANDS (insert, query, join, leave) PROMPT> ");
-			String argv[] = {};
+			String argv[] = null;
 			try {
-				input = br.readLine();
-				if (input.split(" ").length > 1){
-					argv = input.split(" ");
-					input = argv[0];
-				}
+				String line = br.readLine();
+				argv = line.split(" ");
+				input = argv[0];
 			} catch (IOException ioe) {
+				break;
 			}
 			if (input.toLowerCase().equals("show")){
 				for(ProxyPeer pi : proxyPeerList){
 					System.out.println(pi.host+":"+pi.port+" is "+(pi.connected ? "online" : "offline"));
 				}
-			}else if (input.toLowerCase().equals("set")){
-				System.out.println("Change myPort to...");
-				String input2 = "";
-				try {
-					input2 = br.readLine();
-					peer.localPort = Integer.parseInt(input2);
-				} catch (IOException ioe) {
-				}		
 			}else if (input.toLowerCase().equals("insert")){
 				String input2 = "";
 				if (argv.length > 1){
@@ -185,17 +176,7 @@ public class TestMain {
 					} catch (IOException ioe) {
 					}
 				}
-				System.out.println("Telling peer to insert "+input2);
 				peer.insert(input2);
-			}else if (input.toLowerCase().equals("insert")){
-				System.out.println("what is the path of the file you want to insert?");
-				String input2 = "";
-				try {
-					input2 = br.readLine();
-					System.out.println("Telling peer to insert "+input2);
-					peer.insert(input2);
-				} catch (IOException ioe) {
-				}
 			}else if(input.toLowerCase().equals("query")){
 				System.out.println("Telling peer to query...");
 				Status status = new Status();
@@ -213,10 +194,12 @@ public class TestMain {
 				}else{
 					System.out.println("Telling peer to leave...");
 				}
+			} else if (input.equals("list")) {
+				peer.syncManager.listGlobalFiles();
 			}else if(input.toLowerCase().equals("exit")){
 				break;
-			}else{
-				System.out.println("Invalid command!");
+			} else if (input.length() > 0) {
+				System.out.println("Invalid command: " + input);
 			}
 		}
 	}
