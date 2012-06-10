@@ -56,33 +56,31 @@ public class ProxyPeer implements Runnable {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintStream ps = new PrintStream(socket.getOutputStream());
-			// while there are messages to be sent
-			// grab the first one and act on it
+			
 			while (true) {
-				String message = null;
+				String command = null;
 				synchronized (this) {
 					if (requests.size() == 0) // Done
 						break;
-					message = requests.removeFirst();
+					command = requests.removeFirst();
 				}
-				// send the command first
-				System.out.println("Sending " + message + " to " + this.toString());
-				ps.println(message);
-				// followed by ip and port by convention
+				
+				//System.out.println("Sending " + command + " to " + this.toString());
+				ps.println(command);
 				ps.println(Peer.localAddress.getHostAddress());
 				ps.println(Peer.localPort);
-				// depending on the command, send more lines
-				if (message.equals("join")) {
+				
+				if (command.equals("join")) {
 					// Request
 					ps.println(Peer.syncManager.getFileList());
 					ps.println(Peer.syncManager.getChunkList());
-				}if (message.equals("leave")) {
+				}if (command.equals("leave")) {
 					// nothing else to send
-				}else if (message.equals("update")) {
+				}else if (command.equals("update")) {
 					// Request
 					ps.println(Peer.syncManager.getFileList());
 					ps.println(Peer.syncManager.getChunkList());
-				}else if(message.equals("chunk")){
+				}else if(command.equals("chunk")){
 					// chunk request need to send chunkID
 					String chunkID = "";
 					// String chunkID = SyncManager.grabNextChunkToRequest();
@@ -95,7 +93,7 @@ public class ProxyPeer implements Runnable {
 					// TODO: write the chunkDATA to chunk file
 					// when a write completes, FM will push a new chunk request to our queue
 					Peer.syncManager.writeChunkData(chunkID, chunkData);
-				} else if (message.equals("echo")) {
+				} else if (command.equals("echo")) {
 					ps.println("echo");
 				}
 			}

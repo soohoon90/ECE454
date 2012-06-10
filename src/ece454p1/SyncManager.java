@@ -137,12 +137,14 @@ public class SyncManager {
 		String[] chunks = chunkList.split(":");
 		
 		// Validate the chunk names
-		for (String chunk : chunks) {
-			String filename = ChunkedFile.filenameFromChunkName(chunk);
-			int cn = ChunkedFile.numberFromChunkName(chunk);
-			if (filename == null || cn < 0) {
-				System.out.println("Invalid chunk " + chunk + " in list");
-				return;
+		if (chunks.length > 0 && chunks[0].length() > 0) {
+			for (String chunk : chunks) {
+				String filename = ChunkedFile.filenameFromChunkName(chunk);
+				int cn = ChunkedFile.numberFromChunkName(chunk);
+				if (filename == null || cn < 0) {
+					System.out.println("Invalid chunk " + chunk + " in list:");
+					return;
+				}
 			}
 		}
 		
@@ -176,10 +178,22 @@ public class SyncManager {
 	 * Debug
 	 */
 	public synchronized void printAllChunks() {
+		System.out.println("Local:");
 		ArrayList<String> chunks = new ArrayList<String>(local.getLocalChunks());
 		Collections.sort(chunks);
 		for (String chunk : chunks) {
-			System.out.println(chunk);
+			System.out.println("\t" + chunk);
+		}
+		System.out.println();
+		
+		for (ProxyPeer p : Peer.proxyPeerList) {
+			System.out.println(p.toString() + ":");
+			chunks = new ArrayList<String>(p.chunks);
+			Collections.sort(chunks);
+			for (String chunk : chunks) {
+				System.out.println("\t" + chunk);
+			}
+			System.out.println();
 		}
 	}
 	

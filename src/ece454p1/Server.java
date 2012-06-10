@@ -54,12 +54,12 @@ public class Server implements Runnable {
 				String chunkList = in.readLine();
 				
 				Peer.syncManager.parseFileList(fileList);
-				//Peer.syncManager.parseChunkList(proxy, chunkList);
+				Peer.syncManager.parseChunkList(proxy, chunkList);
 			} else if(command.equals("chunk")) {
+				// Request
 				String chunkName = in.readLine();
 				
-				// debug
-				System.out.println(">> PeerResponse: chunk request from " + ip+":"+port+" for "+chunkName);
+				// Reply
 				// OutputStrem is used instead of PrintStream because this is Byte[]
 				// TODO: use syncManager readChunkData
 				peerSocket.getOutputStream().write(Peer.syncManager.readChunkData(chunkName));

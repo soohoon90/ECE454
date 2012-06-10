@@ -30,17 +30,7 @@ public class Peer {
 	}
 
 	public int insert(String filename){
-		System.out.println("Peer was told to insert " + filename);
-		// TODO: use the proper FileManager to insert new file
-		int returnCode = syncManager.addFileToSystem(filename);		
-		if (returnCode == -1){
-			System.out.println("Error: the file "+ filename + " doesn't exist");
-		}else if(returnCode == 1){
-			System.out.println("Error: the file "+ filename + " is already in the system");
-		}else{
-			System.out.println("added "+ filename);
-		}
-		// PeerInsertNotifierThread p = new PeerInsertNotifierThread(filename);
+		syncManager.addFileToSystem(filename);
 		return 0;
 	}
 
