@@ -1,9 +1,7 @@
 package ece454p1;
 
-import java.net.InetAddress;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.io.*;
+import java.util.*;
 import java.net.*;
 
 
@@ -27,12 +25,15 @@ import java.net.*;
  * 		chunk	- will send "chunk"
  * 				- the remote will send the data
  */
-public class ProxyPeer extends Thread{
+public class ProxyPeer implements Runnable {
 	public InetAddress host;
 	public int port;
 	public boolean connected;
 	public ArrayDeque<String> requests = new ArrayDeque<String>();
-	public ArrayList<String> chunks = new ArrayList<String>();
+	
+	// SyncManager
+	public HashSet<String> chunks = new HashSet<String>();
+	public String nextChunk;
 
 	public ProxyPeer(InetAddress h, Integer p, boolean c){
 		host = h;
@@ -44,40 +45,44 @@ public class ProxyPeer extends Thread{
 		Socket socket = null;
 		try {
 			socket = new Socket(host, port);
+		} catch (IOException e) {
+			System.out.println("Unable to connect to " + this.toString());
+			synchronized (this) {
+				requests.clear();
+			}
+			return;
+		}
+		
+		System.out.println("Proxy " + this.toString() + " started running");
+		
+		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintStream ps = new PrintStream(socket.getOutputStream());
-			// while there are messages to be sent
-			// grab the first one and act on it
+			
 			while (true) {
-				String message = null;
+				String command = null;
 				synchronized (this) {
 					if (requests.size() == 0) // Done
 						break;
-					message = requests.removeFirst();
+					command = requests.removeFirst();
 				}
-				// send the command first
-				ps.println(message);
-				// followed by ip and port by convention
+				
+				//System.out.println("Sending " + command + " to " + this.toString());
+				ps.println(command);
 				ps.println(Peer.localAddress.getHostAddress());
 				ps.println(Peer.localPort);
-				// depending on the command, send more lines
-				if (message.equals("join")){
-					// nothing else to send
-				}else if (message.equals("leave")){
-					// nothing else to send
-				}else if (message.equals("update")){
-					// update request will include file listing and chunk listing
-					// TODO: use syncManager getFileList() and getChunkList()
+				
+				if (command.equals("join")) {
+					// Request
 					ps.println(Peer.syncManager.getFileList());
 					ps.println(Peer.syncManager.getChunkList());
-					// TODO: use FileManager's parseFileList() and parseChunkList();
-					String ip = br.readLine();
-					int port = Integer.parseInt(br.readLine());
-					Peer.syncManager.parseFileList(br.readLine());
-					Peer.syncManager.parseChunkList(ip, port, br.readLine());
-					// NOTE: if FileManager detects a new (previously unknown) global file,
-					// it will push another update to the its peers.
-				}else if(message.equals("chunk")){
+				}if (command.equals("leave")) {
+					// nothing else to send
+				}else if (command.equals("update")) {
+					// Request
+					ps.println(Peer.syncManager.getFileList());
+					ps.println(Peer.syncManager.getChunkList());
+				}else if(command.equals("chunk")){
 					// chunk request need to send chunkID
 					String chunkID = "";
 					// String chunkID = SyncManager.grabNextChunkToRequest();
@@ -90,10 +95,12 @@ public class ProxyPeer extends Thread{
 					// TODO: write the chunkDATA to chunk file
 					// when a write completes, FM will push a new chunk request to our queue
 					Peer.syncManager.writeChunkData(chunkID, chunkData);
+				} else if (command.equals("echo")) {
+					ps.println("echo");
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("Unable to connect to " + this.toString());
+			System.out.println("Stream exception to " + this.toString());
 			return;
 		}
 
@@ -101,8 +108,15 @@ public class ProxyPeer extends Thread{
 			socket.close();
 		} catch (IOException e) {
 			System.out.println("Error closing socket to " + this.toString());
+			return;
+		} finally {
+			socket = null;
 		}
-		socket = null;
+		System.out.println("Closed socket to " + this.toString());
+	}
+	
+	private void enqueue(String command) {
+		requests.add(command);
 	}
 
 	public void send(String message) {
@@ -115,18 +129,25 @@ public class ProxyPeer extends Thread{
 		}
 	}
 
-	public void leave(){
-		synchronized (this) {
-			requests.clear();
-			requests.addLast("leave");
-			if (requests.size() == 1) {
-				new Thread(this).start();
-			}			
-		}
+	public synchronized void echo() {
+		enqueue("echo");
 	}
-
+	
+	public synchronized void join() {
+		enqueue("join");
+	}
+	
+	public synchronized void leave() {
+		requests.clear();
+		enqueue("leave");
+	}
+	
+	public synchronized void update() {
+		requests.remove("update");
+		enqueue("update"); // Push to back of queue
+	}
+	
 	public String toString() {
 		return host.getHostAddress() + ":" + Integer.toString(port);
 	}
-
 }

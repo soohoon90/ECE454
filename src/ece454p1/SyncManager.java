@@ -40,9 +40,7 @@ public class SyncManager {
 		
 		if (Peer.currentState == Peer.State.connected){
 			for (ProxyPeer p : Peer.proxyPeerList){
-				if (p.connected){
-					p.send("update");
-				}
+				p.update();
 			}
 		}
 		return 0;
@@ -115,42 +113,51 @@ public class SyncManager {
 		HashSet<ChunkedFile> files = new HashSet<ChunkedFile>();
 		
 		// Validate the file list
-		if (items.length % 2 != 0) {
-			System.out.println("Missing item in pair<file, size> list");
-			return;
-		}
-		for (int i = 0; i < items.length; i += 2) {
-			long size = 0;
-			try {
-				size = Long.parseLong(items[i + 1]);
-			} catch (NumberFormatException e) {
-				System.out.println("Invalid file size " + items[i + 1]);
+		if (items.length > 1) {
+			if (items.length % 2 != 0) {
+				System.out.println("Missing item in pair<file, size> list");
 				return;
 			}
-			files.add(new ChunkedFile(items[i], size));
-		}
-		for (ChunkedFile file : files) {
-			for (ChunkedFile globalFile : globalFiles) {
-				if (globalFile.getName().equals(file.getName())) {
-					if (globalFile.getSize() != file.getSize()) { // Check that file sizes match
-						System.out.println("File sizes don't match: " + globalFile.toString() + " (existing), and " + file.toString() + " (new)");
-						return;
+			for (int i = 0; i < items.length; i += 2) {
+				long size = 0;
+				try {
+					size = Long.parseLong(items[i + 1]);
+				} catch (NumberFormatException e) {
+					System.out.println("Invalid file size " + items[i + 1]);
+					return;
+				}
+				files.add(new ChunkedFile(items[i], size));
+			}
+			for (ChunkedFile file : files) {
+				for (ChunkedFile globalFile : globalFiles) {
+					if (globalFile.getName().equals(file.getName())) {
+						if (globalFile.getSize() != file.getSize()) { // Check that file sizes match
+							System.out.println("File sizes don't match: " + globalFile.toString() + " (existing), and " + file.toString() + " (new)");
+							return;
+						}
 					}
 				}
 			}
 		}
 		
+		// Send out updates if list is different
+		if (globalFiles.containsAll(files))
+			return;
+		
 		globalFiles.addAll(files);
+		for (ProxyPeer proxy : Peer.proxyPeerList) {
+			proxy.update();
+		}
 	}
 	
 	/**
 	 * 
 	 */
-	public synchronized void parseChunkList(String ip, int port, String chunkList) {
-		if (chunkList.length() > 0){
-			String[] chunks = chunkList.split(":");
-			
-			// Validate the chunk names
+	public synchronized void parseChunkList(ProxyPeer proxy, String chunkList) {
+		String[] chunks = chunkList.split(":");
+		
+		// Validate the chunk names
+		if (chunks.length > 0 && chunks[0].length() > 0) {
 			for (String chunk : chunks) {
 				String filename = ChunkedFile.filenameFromChunkName(chunk);
 				int cn = ChunkedFile.numberFromChunkName(chunk);
@@ -160,14 +167,55 @@ public class SyncManager {
 				}
 			}
 			
-			for (ProxyPeer p : Peer.proxyPeerList){
-				if(ip.equals(p.host.getHostAddress()) && port == p.port){
-					p.chunks = new ArrayList<String>(Arrays.asList(chunks));
-				}
+		// update the chunk list
+		proxy.chunks = new HashSet<String>(Arrays.asList(chunks));
+		
+		}
+	}
+	
+	/**
+	 * Debug
+	 */
+	public synchronized void printGlobalFiles() {
+		ArrayList<ChunkedFile> files = new ArrayList<ChunkedFile>(globalFiles);
+		Collections.sort(files);
+		for (ChunkedFile file : files) {
+			System.out.println(file);
+		}
+	}
+	
+	/**
+	 * Debug
+	 */
+	public synchronized void printLocalFiles() {
+		ArrayList<ChunkedFile> files = new ArrayList<ChunkedFile>(local.getLocalFiles());
+		Collections.sort(files);
+		for (ChunkedFile file : files) {
+			System.out.println(file);
+		}
+	}
+	
+	/**
+	 * Debug
+	 */
+	public synchronized void printAllChunks() {
+		System.out.println("Local:");
+		ArrayList<String> chunks = new ArrayList<String>(local.getLocalChunks());
+		Collections.sort(chunks);
+		for (String chunk : chunks) {
+			System.out.println("\t" + chunk);
+		}
+		System.out.println();
+		
+		for (ProxyPeer p : Peer.proxyPeerList) {
+			System.out.println(p.toString() + ":");
+			chunks = new ArrayList<String>(p.chunks);
+			Collections.sort(chunks);
+			for (String chunk : chunks) {
+				System.out.println("\t" + chunk);
 			}
-
-		}		
-		// TODO:
+			System.out.println();
+		}
 	}
 	
 	/**
@@ -191,7 +239,7 @@ public class SyncManager {
 			}
 		}
 		if (chunkedFile == null) {
-			System.out.println("Chunk " + chunk + " does not have corresponding file in system");
+			System.out.println("File " + filename + " does not have corresponding file in system");
 			return null;
 		}
 		if (cn >= chunkedFile.numberOfChunks()) {
@@ -227,7 +275,7 @@ public class SyncManager {
 			}
 		}
 		if (chunkedFile == null) {
-			System.out.println("Chunk " + filename + " does not have corresponding file in system");
+			System.out.println("File " + filename + " does not have corresponding file in system");
 			return;
 		}
 		if (cn >= chunkedFile.numberOfChunks()) {
@@ -237,13 +285,13 @@ public class SyncManager {
 		
 		local.writeChunk(chunkedFile, cn, data);
 		
-		// send updates
+		// Send updates
 		if (Peer.currentState == Peer.State.connected){
 			for (ProxyPeer p : Peer.proxyPeerList){
-				if (p.connected){
-					p.send("update");
-				}
+				p.update();
 			}
 		}
+		
+		// TODO: decide next chunks to download
 	}
 }

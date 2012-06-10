@@ -2,7 +2,7 @@ package ece454p1;
 
 import java.util.regex.*;
 
-public class ChunkedFile /* TODO: implements Serializable */ {
+public class ChunkedFile implements Comparable<ChunkedFile> {
 	
 	private static final String CHUNK_REGEX = "(.+)[.](\\d+)";
 	
@@ -19,6 +19,14 @@ public class ChunkedFile /* TODO: implements Serializable */ {
 			return null;
 		
 		return filename + "." + Integer.toString(k);
+	}
+	
+	public int compareTo(ChunkedFile f) {
+		int nameCompare = filename.compareTo(f.getName());
+		if (nameCompare == 0) {
+			return (size < f.getSize() ? -1 : 1);
+		}
+		return nameCompare;
 	}
 	
 	public Object clone() {
@@ -50,7 +58,7 @@ public class ChunkedFile /* TODO: implements Serializable */ {
 	}
 	
 	public String toString() {
-		return filename + "<" + Long.toString(size) + " bytes>";
+		return filename + ":" + Long.toString(size);
 	}
 	
 	public static int numberOfChunksForFileSize(long fileSize) {

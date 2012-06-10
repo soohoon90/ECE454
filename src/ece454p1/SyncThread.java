@@ -70,7 +70,7 @@ public class SyncThread extends Thread{
 				String ip = br.readLine();
 				int port = Integer.parseInt(br.readLine());
 				Peer.syncManager.parseFileList(br.readLine());
-				Peer.syncManager.parseChunkList(ip, port, br.readLine());
+				Peer.syncManager.parseChunkList(p, br.readLine());
 				s.close();
 			} catch (UnknownHostException e) {
 				p.connected = false;
@@ -154,7 +154,7 @@ public class SyncThread extends Thread{
 							String ip = br.readLine();
 							int port = Integer.parseInt(br.readLine());
 							Peer.syncManager.parseFileList(br.readLine());
-							Peer.syncManager.parseChunkList(ip, port, br.readLine());
+							Peer.syncManager.parseChunkList(p, br.readLine());
 							s.close();
 						} catch (UnknownHostException e) {
 							p.connected = false;

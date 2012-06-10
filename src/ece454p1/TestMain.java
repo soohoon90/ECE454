@@ -131,8 +131,7 @@ public class TestMain {
 
 			}
 		}
-
-		if (peerNumber < 0 || peerNumber > proxyPeerList.size()) {
+		if (localAddress == null || peerNumber < 0 || peerNumber > proxyPeerList.size()) {
 			System.out.println("Error: Peer number out of range");
 			System.exit(1);
 		}
@@ -153,39 +152,18 @@ public class TestMain {
 		String input = "";
 		while(true){
 			System.out.print("COMMANDS (insert, query, join, leave) PROMPT> ");
-			String argv[] = {};
+			String argv[] = null;
 			try {
-				input = br.readLine();
-				if (input.split(" ").length > 1){
-					argv = input.split(" ");
-					input = argv[0];
-				}
+				String line = br.readLine();
+				argv = line.split(" ");
+				input = argv[0];
 			} catch (IOException ioe) {
+				break;
 			}
 			if (input.toLowerCase().equals("show")){
-				for(ProxyPeer pi : Peer.proxyPeerList){
-					System.out.println(pi.host+":"+pi.port+" is "+ (pi.connected ? "online" : "offline"));
-					System.out.println("\thas request queue size of "+pi.requests.size());
-					System.out.println("\tknown to have "+pi.chunks.size()+ " chunks");
+				for(ProxyPeer pi : proxyPeerList){
+					System.out.println(pi);
 				}
-				System.out.println("GlobalFileList size:"+Peer.syncManager.globalFiles.size());
-				for (ChunkedFile s : Peer.syncManager.globalFiles){
-					System.out.println(s);
-				}
-				
-			}else if (input.toLowerCase().equals("send")){
-				String input2 = "";
-				if (argv.length > 1){
-					input2 = argv[1];
-				}else{
-					System.out.println("what is the path of the file you want to insert?");
-					try {
-						input2 = br.readLine();
-					} catch (IOException ioe) {
-					}
-				}
-				System.out.println("Telling peer to insert "+input2);
-				peer.send(input2);
 			}else if (input.toLowerCase().equals("insert")){
 				String input2 = "";
 				if (argv.length > 1){
@@ -197,17 +175,14 @@ public class TestMain {
 					} catch (IOException ioe) {
 					}
 				}
-				System.out.println("Telling peer to insert "+input2);
 				peer.insert(input2);
 			}else if(input.toLowerCase().equals("query")){
 				Status status = new Status();
 				peer.query(status);
 				System.out.println("Status contains info of "+status.numberOfFiles()+" files");
 			}else if(input.toLowerCase().equals("join")){
-				if(peer.join()== ReturnCodes.ERR_UNKNOWN_WARNING){
+				if (peer.join() == ReturnCodes.ERR_UNKNOWN_WARNING){
 					System.out.println("Peer is already connected. Leave first.");
-				}else{
-					System.out.println("Telling peer to join...");
 				}
 			}else if(input.toLowerCase().equals("leave")){
 				if(peer.leave()== ReturnCodes.ERR_UNKNOWN_WARNING){
@@ -215,10 +190,18 @@ public class TestMain {
 				}else{
 					System.out.println("Telling peer to leave...");
 				}
+			} else if (input.equals("global")) {
+				peer.syncManager.printGlobalFiles();
+			} else if (input.equals("local")) {
+				peer.syncManager.printLocalFiles();
+			} else if (input.equals("chunks")) {
+				peer.syncManager.printAllChunks();
+			}else if (input.equals("echo")) {
+				peer.echo();
 			}else if(input.toLowerCase().equals("exit")){
 				break;
-			}else{
-				System.out.println("Invalid command!");
+			} else if (input.length() > 0) {
+				System.out.println("Invalid command: " + input);
 			}
 		}
 	}

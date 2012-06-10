@@ -44,7 +44,11 @@ public class ResponseThread extends Thread{
 //					System.out.println(">> PeerResponse: update request from " + ip+":"+port);
 					// update request comes will file listing and chunk listing
 					Peer.syncManager.parseFileList(br.readLine());
-					Peer.syncManager.parseChunkList(ip, port, br.readLine());
+					for (ProxyPeer p : Peer.proxyPeerList){
+						if (p.host.getHostAddress().equals(ip) && p.port == port){
+							Peer.syncManager.parseChunkList(p, br.readLine());
+						}
+					}
 					// send update back
 					ps.println(Peer.localAddress.getHostAddress());
 					ps.println(Peer.localPort);
