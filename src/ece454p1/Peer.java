@@ -70,7 +70,7 @@ public class Peer {
 		//		for (ProxyPeer p : proxyPeerList){
 		//			p.join();
 		//		}
-
+		
 		currentState = State.connected;
 		return ReturnCodes.ERR_OK;
 	}

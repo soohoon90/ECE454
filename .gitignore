@@ -7,3 +7,7 @@ bin*/
 # OS X
 .DS_Store
 xcuserdata/
+
+peers.txt
+
+src/ece454p1/Config.java

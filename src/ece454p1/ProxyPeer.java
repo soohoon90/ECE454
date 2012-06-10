@@ -35,7 +35,7 @@ public class ProxyPeer implements Runnable {
 	public HashSet<String> chunks = new HashSet<String>();
 	public String nextChunk;
 
-	public ProxyPeer(InetAddress h, Integer p, boolean c){
+	public ProxyPeer(InetAddress h, Integer p){
 		host = h;
 		port = p;
 		connected = false;
@@ -118,7 +118,7 @@ public class ProxyPeer implements Runnable {
 	private void enqueue(String command) {
 		requests.add(command);
 	}
-
+	
 	public void send(String message) {
 		synchronized (this) {
 			requests.addLast(message);
@@ -129,12 +129,12 @@ public class ProxyPeer implements Runnable {
 		}
 	}
 
-	public synchronized void echo() {
-		enqueue("echo");
-	}
-	
 	public synchronized void join() {
 		enqueue("join");
+	}
+
+	public synchronized void echo() {
+		enqueue("echo");
 	}
 	
 	public synchronized void leave() {

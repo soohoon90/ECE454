@@ -116,7 +116,7 @@ public class TestMain {
 					localAddress = address;
 					localPort = port;
 				} else {
-					proxyPeerList.add(new ProxyPeer(address, port, false));
+					proxyPeerList.add(new ProxyPeer(address, port));
 				}
 				lineNumber++;
 			}
