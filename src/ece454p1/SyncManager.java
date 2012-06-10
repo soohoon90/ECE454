@@ -136,20 +136,33 @@ public class SyncManager {
 	public synchronized void parseChunkList(ProxyPeer proxy, String chunkList) {
 		String[] chunks = chunkList.split(":");
 		
-		// Validate the chunk names
-		if (chunks.length > 0 && chunks[0].length() > 0) {
-			for (String chunk : chunks) {
-				String filename = ChunkedFile.filenameFromChunkName(chunk);
-				int cn = ChunkedFile.numberFromChunkName(chunk);
-				if (filename == null || cn < 0) {
-					System.out.println("Invalid chunk " + chunk + " in list:");
-					return;
-				}
+		if (chunks.length > 0 && chunks[0].length() == 0) {
+			chunks = new String[0];
+		}
+		
+		// Validate the chunk list
+		for (String chunk : chunks) {
+			String filename = ChunkedFile.filenameFromChunkName(chunk);
+			int cn = ChunkedFile.numberFromChunkName(chunk);
+			if (filename == null || cn < 0) {
+				System.out.println("Invalid chunk " + chunk + " in list");
+				return;
 			}
 		}
 		
+		// Update the proxy object
 		proxy.chunks = new HashSet<String>(Arrays.asList(chunks));
-		// TODO:
+		
+		// Request new chunks
+		HashSet<String> remoteChunks = new HashSet<String>(proxy.chunks);
+		HashSet<String> localChunks = local.getLocalChunks();
+		
+		remoteChunks.removeAll(localChunks);
+		System.out.println("Difference with " + proxy.toString() + ": " + remoteChunks);
+		for (String chunk : remoteChunks) {
+			proxy.chunk(chunk);
+			break; // Just get any chunk
+		}
 	}
 	
 	/**
@@ -271,6 +284,17 @@ public class SyncManager {
 			}
 		}
 		
-		// TODO: decide next chunks to download
+		// Request more chunks
+		HashSet<String> localChunks = local.getLocalChunks();
+		
+		for (ProxyPeer p : Peer.proxyPeerList) {
+			HashSet<String> remoteChunks = new HashSet<String>(p.chunks);
+			
+			remoteChunks.removeAll(localChunks);
+			for (String remoteChunk : remoteChunks) {
+				p.chunk(remoteChunk);
+				break; // Just get any chunk
+			}
+		}
 	}
 }
