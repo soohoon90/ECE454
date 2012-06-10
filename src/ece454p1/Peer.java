@@ -19,13 +19,14 @@ public class Peer {
 	public static int localPort;
 	public static State currentState;
 	public static ArrayList<ProxyPeer> proxyPeerList;
-	public static ServerThread serverThread;
+	public static Listener listener;
 	public static SyncManager syncManager;
 	
 	public Peer(ArrayList<ProxyPeer> ppl) {
 		currentState = State.disconnected;
 		proxyPeerList = ppl;
 		syncManager = new SyncManager();
+		listener = new Listener();
 	}
 
 	public int insert(String filename){
@@ -58,8 +59,7 @@ public class Peer {
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
 		}		
 
-		serverThread = new ServerThread(localPort);
-		serverThread.start();
+		listener.start();
 		
 		for (ProxyPeer p : proxyPeerList){
 			p.send("join");
@@ -78,10 +78,7 @@ public class Peer {
 			p.leave();
 		}
 		
-		try {
-			serverThread.sSocket.close();
-		} catch (IOException e) {
-		}
+		listener.stop();
 		
 		currentState = State.disconnected;
 		return ReturnCodes.ERR_OK;

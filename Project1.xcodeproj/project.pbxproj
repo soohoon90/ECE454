@@ -18,7 +18,7 @@
 		3D75FFCC1581BE7500F20539 /* peers2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = peers2.txt; sourceTree = "<group>"; };
 		3D75FFF71584295F00F20539 /* ProxyPeer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ProxyPeer.java; path = src/ece454p1/ProxyPeer.java; sourceTree = "<group>"; };
 		3D75FFF81584295F00F20539 /* ResponseThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ResponseThread.java; path = src/ece454p1/ResponseThread.java; sourceTree = "<group>"; };
-		3D75FFF91584295F00F20539 /* ServerThread.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ServerThread.java; path = src/ece454p1/ServerThread.java; sourceTree = "<group>"; };
+		3D75FFF91584295F00F20539 /* Listener.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Listener.java; path = src/ece454p1/Listener.java; sourceTree = "<group>"; };
 		3D75FFFA1584295F00F20539 /* SyncManager.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SyncManager.java; path = src/ece454p1/SyncManager.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -45,12 +45,12 @@
 			children = (
 				3D75FFB4158092E900F20539 /* ChunkedFile.java */,
 				3D75FFB5158092E900F20539 /* Config.java */,
+				3D75FFF91584295F00F20539 /* Listener.java */,
 				3D75FFB6158092E900F20539 /* LocalFileManager.java */,
 				3D75FFB8158092E900F20539 /* Peer.java */,
 				3D75FFF71584295F00F20539 /* ProxyPeer.java */,
 				3D75FFF81584295F00F20539 /* ResponseThread.java */,
 				3D75FFBE158092E900F20539 /* ReturnCodes.java */,
-				3D75FFF91584295F00F20539 /* ServerThread.java */,
 				3D75FFBF158092E900F20539 /* Status.java */,
 				3D75FFFA1584295F00F20539 /* SyncManager.java */,
 				3D75FFC0158092E900F20539 /* TestMain.java */,
@@ -63,7 +63,7 @@
 /* Begin PBXLegacyTarget section */
 		3D75FF9C158090EE00F20539 /* Project1 */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "ChunkedFile.java Config.java LocalFileManager.java Peer.java ProxyPeer.java ResponseThread.java ReturnCodes.java ServerThread.java Status.java SyncManager.java TestMain.java";
+			buildArgumentsString = "ChunkedFile.java Config.java Listener.java LocalFileManager.java Peer.java ProxyPeer.java ResponseThread.java ReturnCodes.java Status.java SyncManager.java TestMain.java";
 			buildConfigurationList = 3D75FF9F158090EE00F20539 /* Build configuration list for PBXLegacyTarget "Project1" */;
 			buildPhases = (
 			);

@@ -183,10 +183,8 @@ public class TestMain {
 				peer.query(status);
 				System.out.println("Status contains info of "+status.numberOfFiles()+" files");
 			}else if(input.toLowerCase().equals("join")){
-				if(peer.join()== ReturnCodes.ERR_UNKNOWN_WARNING){
+				if (peer.join() == ReturnCodes.ERR_UNKNOWN_WARNING){
 					System.out.println("Peer is already connected. Leave first.");
-				}else{
-					System.out.println("Telling peer to join...");
 				}
 			}else if(input.toLowerCase().equals("leave")){
 				if(peer.leave()== ReturnCodes.ERR_UNKNOWN_WARNING){
