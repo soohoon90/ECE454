@@ -39,9 +39,7 @@ public class SyncManager {
 		
 		if (Peer.currentState == Peer.State.connected){
 			for (ProxyPeer p : Peer.proxyPeerList){
-				if (p.connected){
-					p.send("update");
-				}
+				p.send("update");
 			}
 		}
 		return 0;
@@ -85,15 +83,6 @@ public class SyncManager {
 			buffer.append(chunks.get(i));
 		}
 		return buffer.toString();
-	}
-	
-	/*
-	 * Debug
-	 */
-	public synchronized void listGlobalFiles() {
-		for (ChunkedFile file : globalFiles) {
-			System.out.println(file);
-		}
 	}
 	
 	/**
@@ -152,6 +141,39 @@ public class SyncManager {
 	}
 	
 	/**
+	 * Debug
+	 */
+	public synchronized void printGlobalFiles() {
+		ArrayList<ChunkedFile> files = new ArrayList<ChunkedFile>(globalFiles);
+		Collections.sort(files);
+		for (ChunkedFile file : files) {
+			System.out.println(file);
+		}
+	}
+	
+	/**
+	 * Debug
+	 */
+	public synchronized void printLocalFiles() {
+		ArrayList<ChunkedFile> files = new ArrayList<ChunkedFile>(local.getLocalFiles());
+		Collections.sort(files);
+		for (ChunkedFile file : files) {
+			System.out.println(file);
+		}
+	}
+	
+	/**
+	 * Debug
+	 */
+	public synchronized void printAllChunks() {
+		ArrayList<String> chunks = new ArrayList<String>(local.getLocalChunks());
+		Collections.sort(chunks);
+		for (String chunk : chunks) {
+			System.out.println(chunk);
+		}
+	}
+	
+	/**
 	 * @return A variably sized array of bytes or null if the chunk cannot be read
 	 */
 	public synchronized byte[] readChunkData(String chunk) {
@@ -172,7 +194,7 @@ public class SyncManager {
 			}
 		}
 		if (chunkedFile == null) {
-			System.out.println("Chunk " + chunk + " does not have corresponding file in system");
+			System.out.println("File " + filename + " does not have corresponding file in system");
 			return null;
 		}
 		if (cn >= chunkedFile.numberOfChunks()) {
@@ -208,7 +230,7 @@ public class SyncManager {
 			}
 		}
 		if (chunkedFile == null) {
-			System.out.println("Chunk " + chunk + " does not have corresponding file in system");
+			System.out.println("File " + filename + " does not have corresponding file in system");
 			return;
 		}
 		if (cn >= chunkedFile.numberOfChunks()) {
@@ -221,9 +243,7 @@ public class SyncManager {
 		// Send updates
 		if (Peer.currentState == Peer.State.connected){
 			for (ProxyPeer p : Peer.proxyPeerList){
-				if (p.connected){
-					p.send("update");
-				}
+				p.send("update");
 			}
 		}
 		

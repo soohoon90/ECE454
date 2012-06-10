@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.io.*;
+import java.util.*;
 import java.net.*;
 
 
@@ -30,9 +31,11 @@ import java.net.*;
 public class ProxyPeer extends Thread{
 	public InetAddress host;
 	public int port;
-	public boolean connected;
 	public ArrayDeque<String> requests = new ArrayDeque<String>();
-	public ArrayList<String> chunks = new ArrayList<String>();
+	
+	// SyncManager
+	public HashSet<String> chunks = new HashSet<String>();
+	public String nextChunk;
 
 	public ProxyPeer(InetAddress h, Integer p){
 		host = h;
@@ -40,7 +43,7 @@ public class ProxyPeer extends Thread{
 	}
 
 	public void run() {
-		System.out.println("Proxy peer " + this.toString() + " started running");
+		System.out.println("Proxy " + this.toString() + " started running");
 		
 		Socket socket = null;
 		try {
@@ -91,6 +94,8 @@ public class ProxyPeer extends Thread{
 					// TODO: write the chunkDATA to chunk file
 					// when a write completes, FM will push a new chunk request to our queue
 					Peer.syncManager.writeChunkData(chunkID, chunkData);
+				} else if (message.equals("echo")) {
+					ps.println("echo");
 				}
 			}
 		} catch (IOException e) {
@@ -107,24 +112,24 @@ public class ProxyPeer extends Thread{
 	}
 
 	public void send(String message) {
+		if (Peer.currentState != Peer.State.connected)
+			return;
+		
 		synchronized (this) {
 			System.out.println("Proxy peer " + this.toString() + " is queuing message " + message);
 			requests.addLast(message);
 
-			if (requests.size() == 1 && Peer.currentState == Peer.State.connected) {
+			if (requests.size() == 1) {
 				new Thread(this).start();
 			}
 		}
 	}
 	
-	public void leave(){
+	public void leave() {
 		synchronized (this) {
 			requests.clear();
-			requests.addLast("leave");
-			if (requests.size() == 1 && Peer.currentState == Peer.State.connected) {
-				new Thread(this).start();
-			}
 		}
+		this.send("leave");
 	}
 
 	public String toString() {

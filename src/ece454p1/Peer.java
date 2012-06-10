@@ -86,6 +86,12 @@ public class Peer {
 		currentState = State.disconnected;
 		return ReturnCodes.ERR_OK;
 	}
+	
+	public void echo() {
+		for (ProxyPeer p : proxyPeerList) {
+			p.send("echo");
+		}
+	}
 
 	/*
 	 * TODO: Feel free to hack around with the private data, since this is part of

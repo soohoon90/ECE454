@@ -163,7 +163,7 @@ public class TestMain {
 			}
 			if (input.toLowerCase().equals("show")){
 				for(ProxyPeer pi : proxyPeerList){
-					System.out.println(pi.host+":"+pi.port+" is "+(pi.connected ? "online" : "offline"));
+					System.out.println(pi);
 				}
 			}else if (input.toLowerCase().equals("insert")){
 				String input2 = "";
@@ -194,8 +194,14 @@ public class TestMain {
 				}else{
 					System.out.println("Telling peer to leave...");
 				}
-			} else if (input.equals("list")) {
-				peer.syncManager.listGlobalFiles();
+			} else if (input.equals("global")) {
+				peer.syncManager.printGlobalFiles();
+			} else if (input.equals("local")) {
+				peer.syncManager.printLocalFiles();
+			} else if (input.equals("chunks")) {
+				peer.syncManager.printAllChunks();
+			}else if (input.equals("echo")) {
+				peer.echo();
 			}else if(input.toLowerCase().equals("exit")){
 				break;
 			} else if (input.length() > 0) {

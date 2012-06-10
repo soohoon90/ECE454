@@ -24,7 +24,7 @@ public class ResponseThread extends Thread{
 
 	@Override
 	public void run() {
-
+		System.out.println("Response thread now running");
 		String fromHost = peerSocket.getInetAddress().toString().substring(1);
 
 		try {
@@ -60,17 +60,16 @@ public class ResponseThread extends Thread{
 					for (ProxyPeer p : Peer.proxyPeerList){
 						if (p.host.getHostAddress().equals(ip) && p.port == port){
 							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" joined.");
-							p.connected = true;
 						}
 					}
 				}else if(line.equals("leave")){
 					for (ProxyPeer p : Peer.proxyPeerList){
 						if (p.host.getHostAddress().equals(ip) && p.port == port){
 							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" left.");
-							p.connected = false;
-							p.requests.clear();
 						}
 					}
+				} else if (line.equals("echo")) {
+					System.out.println("echo from " + ip + ":" + Integer.toString(port));
 				}
 			}
 		} catch (IOException e) {
