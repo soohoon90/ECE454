@@ -249,7 +249,10 @@ public class SyncManager {
 		return local.readChunk(chunkedFile, cn);
 	}
 	
-	public void writeChunkData(String chunk, byte[] data) {
+	/**
+	 *
+	 */
+	public synchronized void writeChunkData(String chunk, byte[] data) {
 		// Parse the chunk name
 		String filename = ChunkedFile.filenameFromChunkName(chunk);
 		int cn = ChunkedFile.numberFromChunkName(chunk);
