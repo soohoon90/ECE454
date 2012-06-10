@@ -56,31 +56,32 @@ public class ResponseThread extends Thread{
 					ps.println(Peer.syncManager.getChunkList());
 				}else if(line.equals("chunk")){
 					String chunkID = br.readLine();
-					System.out.println(">> PeerResponse: chunk request from " + ip+":"+port+" for "+chunkID);
-					// OutputStrem is used instead of PrintStream because this is Byte[]
+					System.out.println(">> PeerResponse: chunk request from " + ip+":"+port+" for "+chunkID);					
+					
 					byte[] b = Peer.syncManager.readChunkData(chunkID);
+					
 					BufferedOutputStream bos = new BufferedOutputStream(peerSocket.getOutputStream());
-					ps.println(((b==null)?0:b.length));
+//					ps.println(((b==null)?0:b.length));
+					
 					bos.write(b);
 					bos.flush();
 					bos.close();
 				}else if(line.equals("join")){
 					for (ProxyPeer p : Peer.proxyPeerList){
 						if (p.host.getHostAddress().equals(ip) && p.port == port){
-							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" joined.");
+							System.out.println(">> PeerResponse: "+p.host.getHostName()+":"+p.port+" joined.");
 							p.connected = true;
 						}
 					}
 				}else if(line.equals("leave")){
 					for (ProxyPeer p : Peer.proxyPeerList){
 						if (p.host.getHostAddress().equals(ip) && p.port == port){
-							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" left.");
+							System.out.println(">> PeerResponse: "+p.host.getHostName()+":"+p.port+" left.");
 							p.connected = false;
 							p.requests.clear();
 						}
 					}
 				}else if(line.equals("testfile")){
-					System.out.println("!file!");
 					String filename = br.readLine();
 					System.out.println(filename);
 					

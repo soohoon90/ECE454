@@ -180,6 +180,13 @@ public class TestMain {
 				Status status = new Status();
 				peer.query(status);
 				System.out.println("Status contains info of "+status.numberOfFiles()+" files");
+				for (int i = 0; i < status.numberOfFiles(); i++){
+					System.out.println("file "+i+1+"\t"
+										+status.fractionPresentLocally(i)+"\t"
+										+status.fractionPresent(i)+"\t"
+										+status.minimumReplicationLevel(i)+"\t"
+										+status.averageReplicationLevel(i));
+				}
 			}else if(input.toLowerCase().equals("join")){
 				if (peer.join() == ReturnCodes.ERR_UNKNOWN_WARNING){
 					System.out.println("Peer is already connected. Leave first.");

@@ -46,6 +46,8 @@ public class SyncThread extends Thread{
 				ps.println("join");
 				ps.println(Peer.localAddress.getHostAddress());
 				ps.println(Peer.localPort);
+				ps.close();
+				br.close();
 				s.close();
 			} catch (UnknownHostException e) {
 				p.connected = false;
@@ -71,6 +73,8 @@ public class SyncThread extends Thread{
 				int port = Integer.parseInt(br.readLine());
 				Peer.syncManager.parseFileList(br.readLine());
 				Peer.syncManager.parseChunkList(p, br.readLine());
+				ps.close();
+				br.close();
 				s.close();
 			} catch (UnknownHostException e) {
 				p.connected = false;
@@ -87,10 +91,7 @@ public class SyncThread extends Thread{
 				i++;
 			}
 
-			// TODO: pick a new chunk to request
 			String chunkToBeRequested = Peer.syncManager.getChunkToBeRequested();
-//			String chunkToBeRequested = null;
-			// if request it to connected peers in PeerList
 			if (chunkToBeRequested != null){
 				String chunkData = "";
 				int attempts = 0;
@@ -110,23 +111,22 @@ public class SyncThread extends Thread{
 							ps.println(Peer.localPort);
 							ps.println(chunkToBeRequested);
 							//s.setSoTimeout(0);
-							BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-							int chunkSize = Integer.parseInt(br.readLine());
-							byte[] b = new byte[chunkSize];
+							InputStream is = s.getInputStream();
+//							BufferedReader br = new BufferedReader(new InputStreamReader(is));
+//							int chunkSize = Integer.parseInt(br.readLine());
 							
-							InputStream in = s.getInputStream();
+							ByteArrayOutputStream baos = new ByteArrayOutputStream();
 							
-							int bytesRead;
-							int current = 0;
-							do {
-								bytesRead = in.read(b, current, (b.length-current));
-								if (bytesRead >= 0) current += bytesRead;
-							}while (bytesRead >= 0);
-							
-							in.close();
-							br.close();
-														
-							Peer.syncManager.writeChunkData(chunkToBeRequested, b);
+							byte b[] = new byte[Config.CHUNK_SIZE];
+							for(int ss; (ss=is.read(b)) != -1; )
+							{
+								baos.write(b, 0, ss);
+							}
+							is.close();
+
+							byte result[] = baos.toByteArray();
+							System.out.println(result.length +"bytes!" + Config.CHUNK_SIZE);
+							Peer.syncManager.writeChunkData(chunkToBeRequested, result);
 							s.close();
 							break;
 						} catch (UnknownHostException e) {
@@ -162,7 +162,7 @@ public class SyncThread extends Thread{
 							p.connected = false;
 						}	
 					}
-					Thread.sleep(1000);
+					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 				}
 			}
