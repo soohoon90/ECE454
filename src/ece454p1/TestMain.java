@@ -137,10 +137,10 @@ public class TestMain {
 		}
 
 		// Startup info
-		System.out.println("We are "+localAddress.getHostAddress() + ":" + localPort);
+		System.out.println("We are " + localAddress.getHostAddress() + ":" + localPort);
 		System.out.println("Other peers:");
-		for (ProxyPeer p : proxyPeerList){
-			System.out.println("\t"+p.host.getHostAddress() + ":" + p.port);
+		for (ProxyPeer p : proxyPeerList) {
+			System.out.println("\t" + p.toString());
 		}
 
 		// Create local peer
@@ -149,60 +149,52 @@ public class TestMain {
 		peer.localPort = localPort;
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		String input = "";
-		while(true){
+		while (true) {
 			System.out.print("COMMANDS (insert, query, join, leave) PROMPT> ");
-			String argv[] = null;
+			String line = null;
+			String command = "";
 			try {
-				String line = br.readLine();
-				argv = line.split(" ");
-				input = argv[0];
+				line = br.readLine();
+				if (line.indexOf(" ") != -1) {
+					command = line.substring(0, line.indexOf(" "));
+				} else {
+					command = line;
+				}
 			} catch (IOException ioe) {
 				break;
 			}
-			if (input.toLowerCase().equals("show")){
-				for(ProxyPeer pi : proxyPeerList){
+			
+			if (command.equals("show")) {
+				for (ProxyPeer pi : proxyPeerList) {
 					System.out.println(pi);
 				}
-			}else if (input.toLowerCase().equals("insert")){
-				String input2 = "";
-				if (argv.length > 1){
-					input2 = argv[1];
-				}else{
-					System.out.println("what is the path of the file you want to insert?");
-					try {
-						input2 = br.readLine();
-					} catch (IOException ioe) {
-					}
+			} else if (command.equals("insert")) {
+				String filename = line.substring(line.indexOf(" ") + 1);
+				if (filename.length() > 0) {
+					peer.insert(filename);
+				} else {
+					System.out.println("Missing filename");
 				}
-				peer.insert(input2);
-			}else if(input.toLowerCase().equals("query")){
-				System.out.println("Telling peer to query...");
+			} else if (command.equals("query")) {
 				Status status = new Status();
 				peer.query(status);
-				System.out.println("Status contains info of "+status.numberOfFiles()+" files");
-			}else if(input.toLowerCase().equals("join")){
-				if (peer.join() == ReturnCodes.ERR_UNKNOWN_WARNING){
-					System.out.println("Peer is already connected. Leave first.");
-				}
-			}else if(input.toLowerCase().equals("leave")){
-				if(peer.leave()== ReturnCodes.ERR_UNKNOWN_WARNING){
-					System.out.println("Peer is already not connected. Join first.");
-				}else{
-					System.out.println("Telling peer to leave...");
-				}
-			} else if (input.equals("global")) {
+				System.out.println(status);
+			} else if (command.equals("join")) {
+				peer.join();
+			} else if(command.equals("leave")) {
+				peer.leave();
+			} else if (command.equals("global")) {
 				peer.syncManager.printGlobalFiles();
-			} else if (input.equals("local")) {
+			} else if (command.equals("local")) {
 				peer.syncManager.printLocalFiles();
-			} else if (input.equals("chunks")) {
+			} else if (command.equals("chunks")) {
 				peer.syncManager.printAllChunks();
-			}else if (input.equals("echo")) {
+			} else if (command.equals("echo")) {
 				peer.echo();
-			}else if(input.toLowerCase().equals("exit")){
+			} else if(command.equals("exit")) {
 				break;
-			} else if (input.length() > 0) {
-				System.out.println("Invalid command: " + input);
+			} else if (command.length() > 0) {
+				System.out.println("Invalid command: " + command);
 			}
 		}
 	}

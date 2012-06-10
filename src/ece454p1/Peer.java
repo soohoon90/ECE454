@@ -17,13 +17,12 @@ public class Peer {
 	
 	public static InetAddress localAddress;
 	public static int localPort;
-	public static State currentState;
+	public static boolean joined;
 	public static ArrayList<ProxyPeer> proxyPeerList;
 	public static Listener listener;
 	public static SyncManager syncManager;
 	
 	public Peer(ArrayList<ProxyPeer> ppl) {
-		currentState = State.disconnected;
 		proxyPeerList = ppl;
 		syncManager = new SyncManager();
 		listener = new Listener();
@@ -44,39 +43,38 @@ public class Peer {
 	 * Note that we should have the peer list, so it is not needed as a
 	 * parameter
 	 */
-	public int join(){
-		if (currentState == State.connected){
+	public int join() {
+		if (joined)
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
-		}		
 
 		listener.start();
 		for (ProxyPeer p : proxyPeerList){
 			p.join();
 		}
 		
-		currentState = State.connected;
+		joined = true;
 		return ReturnCodes.ERR_OK;
 	}
 
-	public int leave(){
-		if (currentState == State.disconnected){
+	public int leave() {
+		if (!joined)
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
-		}
 
-		for (ProxyPeer p : proxyPeerList){
+		for (ProxyPeer p : proxyPeerList) {
 			p.leave();
 		}
 		
 		listener.stop();
 		
-		currentState = State.disconnected;
+		joined = false;
 		return ReturnCodes.ERR_OK;
 	}
 	
-	public void echo() {
+	public int echo() {
 		for (ProxyPeer p : proxyPeerList) {
 			p.echo();
 		}
+		return ReturnCodes.ERR_OK;
 	}
 
 	/*
@@ -84,10 +82,6 @@ public class Peer {
 	 * your design This is intended to provide some exemplars to help; ignore it
 	 * if you don't like it.
 	 */
-
-	public enum State {
-		connected, disconnected
-	};
 
 //	public static PeerSyncThread peerSyncThread;
 

@@ -37,7 +37,7 @@ public class SyncManager {
 		}
 		globalFiles.add(newChunkedFile);
 		
-		if (Peer.currentState == Peer.State.connected){
+		if (Peer.joined){
 			for (ProxyPeer p : Peer.proxyPeerList){
 				p.update();
 			}
@@ -119,6 +119,10 @@ public class SyncManager {
 				}
 			}
 		}
+		
+		// Stop if user left the system
+		if (!Peer.joined)
+			return;
 		
 		// Send out updates if list is different
 		if (globalFiles.containsAll(files))
@@ -277,11 +281,13 @@ public class SyncManager {
 		
 		local.writeChunk(chunkedFile, cn, data);
 		
-		// Send updates
-		if (Peer.currentState == Peer.State.connected){
-			for (ProxyPeer p : Peer.proxyPeerList){
-				p.update();
-			}
+		// Stop if user left the system
+		if (!Peer.joined)
+			return;
+		
+		// Send update
+		for (ProxyPeer p : Peer.proxyPeerList) {
+			p.update();
 		}
 		
 		// Request more chunks
