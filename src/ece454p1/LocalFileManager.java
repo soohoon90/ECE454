@@ -167,6 +167,7 @@ public class LocalFileManager {
 				byte[] buffer = this.readChunk(chunkedFile, i);
 				full.write(buffer);
 			}
+			full.getChannel().force(true); // Force write with metadata
 		} catch (IOException e) {
 			System.out.println("Error rebuilding file " + chunkedFile.getName());
 		} finally {

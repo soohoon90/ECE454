@@ -5,17 +5,48 @@ import java.util.*;
 import java.net.*;
 
 public class ProxyPeer implements Runnable {
-	public InetAddress host;
-	public int port;
-	public ArrayDeque<String> requests = new ArrayDeque<String>();
+	private InetAddress address;
+	private int port;
+	private ArrayDeque<String> requests = new ArrayDeque<String>();
 	
 	// SyncManager
-	public HashSet<String> chunks = new HashSet<String>();
-	public String nextChunk;
+	private HashSet<String> chunks = new HashSet<String>();
+	private ArrayDeque<String> pendingChunks = new ArrayDeque<String>();
 
-	public ProxyPeer(InetAddress h, Integer p){
-		host = h;
-		port = p;
+	public ProxyPeer(InetAddress address, Integer port){
+		this.address = address;
+		this.port = port;
+	}
+	
+	public InetAddress getAddress() {
+		return address;
+	}
+	
+	public int getPort() {
+		return port;
+	}
+	
+	public synchronized HashSet<String> getChunks() {
+		return new HashSet<String>(chunks);
+	}
+	
+	public synchronized void setChunks(HashSet<String> chunks) {
+		this.chunks = new HashSet<String>(chunks);
+	}
+	
+	public synchronized ArrayDeque<String> getPendingChunks() {
+		return new ArrayDeque<String>(pendingChunks);
+	}
+	
+	public synchronized void setPendingChunks(ArrayDeque<String> pendingChunks) {
+		this.pendingChunks = new ArrayDeque<String>(pendingChunks);
+		if (pendingChunks.size() > 0) {
+			if (!requests.contains("chunk")) // The pending list has grown from zero
+				enqueue("chunk");
+		} else {
+			if (requests.contains("chunk")) // The pending list has shrunk to zero
+				requests.remove("chunk");
+		}
 	}
 
 	public void run() {
@@ -23,18 +54,25 @@ public class ProxyPeer implements Runnable {
 		
 		while (true) {
 			String command = null;
-			synchronized (this) {
-				if (requests.size() == 0) // Done
+			String chunk = null;
+			synchronized (this) { // Only access to queue
+				if (requests.size() == 0)
 					break;
 				command = requests.removeFirst();
+				
+				if (command.equals("chunk")) {
+					chunk = pendingChunks.removeFirst();
+					if (pendingChunks.size() > 0)
+						requests.add("chunk"); // Push 'chunk' back on queue because there are more chunks
+				}
 			}
 			
 			Socket socket = null;
 			try {
-				socket = new Socket(host, port);
+				socket = new Socket(address, port);
 			} catch (IOException e) {
 				//System.out.println("Unable to connect to " + this.toString());
-				break;
+				continue;
 			}
 			
 			BufferedReader in = null;
@@ -44,28 +82,32 @@ public class ProxyPeer implements Runnable {
 				out = new PrintStream(socket.getOutputStream());
 			} catch (IOException e) {
 				System.out.println("Error opening streams to " + this.toString());
-				break;
+				continue;
 			}
 			
 			try {
-				System.out.println("Starting request '" + command + "' to " + this.toString());
+				//System.out.println("Starting request '" + command + "' to " + this.toString());
 				out.println(command);
 				out.println(Peer.localAddress.getHostAddress());
 				out.println(Peer.localPort);
 				
 				if (command.equals("join")) {
+					System.out.println("Sending 'join' to " + this.toString());
 					// Request
 					out.println(Peer.syncManager.getFileList());
 					out.println(Peer.syncManager.getChunkList());
 				} if (command.equals("leave")) {
-					// nothing else to send
+					System.out.println("Sending 'leave' to " + this.toString());
+					// Nothing else to send
 				} else if (command.equals("update")) {
+					System.out.println("Sending 'update' to " + this.toString());
 					// Request
 					out.println(Peer.syncManager.getFileList());
 					out.println(Peer.syncManager.getChunkList());
 				} else if (command.equals("chunk")) {
+					System.out.println("Downloading " + chunk + " from " + this.toString());
 					// Request
-					out.println(nextChunk);
+					out.println(chunk);
 					
 					// Reply
 					InputStream is = socket.getInputStream();
@@ -77,26 +119,22 @@ public class ProxyPeer implements Runnable {
 						baos.write(buffer, 0, len);
 					}
 					
-					String chunk = null;
-					synchronized (this) {
-						chunk = nextChunk;
-						nextChunk = null;
-					}
 					Peer.syncManager.writeChunkData(chunk, baos.toByteArray());
 				} else if (command.equals("echo")) {
+					System.out.println("Sending 'echo' to " + this.toString());
 					out.println("echo");
 				}
-				System.out.println("Finished request '" + command + "' to " + this.toString());
+				//System.out.println("Requested '" + command + "' from " + this.toString());
 			} catch (IOException e) {
 				System.out.println("Stream exception to " + this.toString());
-				break;
+				continue;
 			}
 			
 			try {
 				socket.close();
 			} catch (IOException e) {
 				System.out.println("Error closing socket to " + this.toString());
-				break;
+				continue;
 			}
 			//System.out.println("Closed socket to " + this.toString());
 		}
@@ -109,14 +147,6 @@ public class ProxyPeer implements Runnable {
 		if (requests.size() == 1) {
 			new Thread(this).start();
 		}
-	}
-	
-	public synchronized void chunk(String chunkName) {
-		if (nextChunk == null) {
-			System.out.println("Enqueuing next chunk " + chunkName + " from " + this.toString());
-			nextChunk = chunkName;
-		}
-		enqueue("chunk");
 	}
 	
 	public synchronized void echo() {
@@ -134,10 +164,10 @@ public class ProxyPeer implements Runnable {
 	
 	public synchronized void update() {
 		requests.remove("update");
-		enqueue("update"); // Push to back of queue
+		enqueue("update"); // Push 'update' to back of queue
 	}
 	
 	public String toString() {
-		return host.getHostAddress() + ":" + Integer.toString(port);
+		return address.getHostAddress() + ":" + Integer.toString(port);
 	}
 }

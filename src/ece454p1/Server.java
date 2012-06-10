@@ -30,7 +30,7 @@ public class Server implements Runnable {
 				
 				// Find corresponding proxy
 				for (ProxyPeer p : Peer.proxyPeerList) {
-					if (p.host.getHostAddress().equals(ip) && p.port == port) {
+					if (p.getAddress().getHostAddress().equals(ip) && p.getPort() == port) {
 						proxy = p;
 						break;
 					}
@@ -43,7 +43,7 @@ public class Server implements Runnable {
 					return;
 				}
 				
-				System.out.println("Starting response to '" + command + "' from " + proxy.toString());
+				System.out.println("Responding to '" + command + "' from " + proxy.toString());
 				if (command.equals("join")) {
 					// Request
 					String fileList = in.readLine();
@@ -70,14 +70,14 @@ public class Server implements Runnable {
 					out.write(data);
 				} else if (command.equals("leave")) {
 					for (ProxyPeer p : Peer.proxyPeerList){
-						if (p.host.getHostAddress().equals(ip) && p.port == port){
-							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" left.");
+						if (p.getAddress().getHostAddress().equals(ip) && p.getPort() == port){
+							System.out.println(">> PeerResponse: "+p.getAddress()+":"+p.getPort()+" left.");
 						}
 					}
 				} else if (command.equals("echo")) {
-					System.out.println("echo from " + ip + ":" + Integer.toString(port));
+					System.out.println("echo from " + proxy.toString());
 				}
-				System.out.println("Finished response to '" + command + "' from " + proxy.toString());
+				//System.out.println("Responded to '" + command + "' from " + proxy.toString());
 			} catch (IOException e) {
 				System.out.println("Stream exception in connection " + this.toString());
 				return;

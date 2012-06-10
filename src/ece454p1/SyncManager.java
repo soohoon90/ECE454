@@ -151,18 +151,15 @@ public class SyncManager {
 		}
 		
 		// Update the proxy object
-		proxy.chunks = new HashSet<String>(Arrays.asList(chunks));
+		HashSet<String> remoteChunks = new HashSet<String>(Arrays.asList(chunks));
+		proxy.setChunks(remoteChunks);
 		
 		// Request new chunks
-		HashSet<String> remoteChunks = new HashSet<String>(proxy.chunks);
 		HashSet<String> localChunks = local.getLocalChunks();
 		
 		remoteChunks.removeAll(localChunks);
-		System.out.println("Difference with " + proxy.toString() + ": " + remoteChunks);
-		for (String chunk : remoteChunks) {
-			proxy.chunk(chunk);
-			break; // Just get any chunk
-		}
+		//System.out.println("Difference with " + proxy.toString() + ": " + remoteChunks);
+		proxy.setPendingChunks(new ArrayDeque<String>(remoteChunks));
 	}
 	
 	/**
@@ -201,7 +198,7 @@ public class SyncManager {
 		
 		for (ProxyPeer p : Peer.proxyPeerList) {
 			System.out.println(p.toString() + ":");
-			chunks = new ArrayList<String>(p.chunks);
+			chunks = new ArrayList<String>(p.getChunks());
 			Collections.sort(chunks);
 			for (String chunk : chunks) {
 				System.out.println("\t" + chunk);
@@ -291,13 +288,10 @@ public class SyncManager {
 		HashSet<String> localChunks = local.getLocalChunks();
 		
 		for (ProxyPeer p : Peer.proxyPeerList) {
-			HashSet<String> remoteChunks = new HashSet<String>(p.chunks);
+			HashSet<String> remoteChunks = p.getChunks();
 			
 			remoteChunks.removeAll(localChunks);
-			for (String remoteChunk : remoteChunks) {
-				p.chunk(remoteChunk);
-				break; // Just get any chunk
-			}
+			p.setPendingChunks(new ArrayDeque<String>(remoteChunks));
 		}
 	}
 }
