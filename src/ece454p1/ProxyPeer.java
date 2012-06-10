@@ -30,13 +30,14 @@ import java.net.*;
 public class ProxyPeer extends Thread{
 	public InetAddress host;
 	public int port;
-	public Boolean connected;
+	public boolean connected;
 	public ArrayDeque<String> requests = new ArrayDeque<String>();
 	public ArrayList<String> chunks = new ArrayList<String>();
 
-	public ProxyPeer(InetAddress h, Integer p, Boolean c){
+	public ProxyPeer(InetAddress h, Integer p, boolean c){
 		host = h;
 		port = p;
+		connected = false;
 	}
 
 	public void run() {
@@ -107,20 +108,20 @@ public class ProxyPeer extends Thread{
 	public void send(String message) {
 		synchronized (this) {
 			requests.addLast(message);
-
 			if (requests.size() == 1 && Peer.currentState == Peer.State.connected) {
+				System.out.println("ProxyPeer starting...");
 				new Thread(this).start();
 			}
 		}
 	}
-	
+
 	public void leave(){
 		synchronized (this) {
 			requests.clear();
 			requests.addLast("leave");
-			if (requests.size() == 1 && Peer.currentState == Peer.State.connected) {
+			if (requests.size() == 1) {
 				new Thread(this).start();
-			}
+			}			
 		}
 	}
 

@@ -23,9 +23,9 @@ public class ServerThread extends Thread{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+//		System.out.println(">> PeerServer: listening at "+sSocket.getLocalPort());
 		while(true){
 			Socket fromPeer = null;
-//			System.out.println(">> PeerServer: listening at "+sSocket.getLocalPort());
 			try {
 				fromPeer = sSocket.accept();
 			} catch (IOException e) {

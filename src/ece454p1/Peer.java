@@ -1,7 +1,13 @@
 package ece454p1;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -14,14 +20,15 @@ import java.util.Random;
  * feel free to do a different container
  */
 public class Peer {
-	
+
 	public static InetAddress localAddress;
 	public static int localPort;
 	public static State currentState;
 	public static ArrayList<ProxyPeer> proxyPeerList;
 	public static ServerThread serverThread;
+	public static SyncThread syncThread;
 	public static SyncManager syncManager;
-	
+
 	public Peer(ArrayList<ProxyPeer> ppl) {
 		currentState = State.disconnected;
 		proxyPeerList = ppl;
@@ -60,13 +67,57 @@ public class Peer {
 
 		serverThread = new ServerThread(localPort);
 		serverThread.start();
-		
-		for (ProxyPeer p : proxyPeerList){
-			p.send("join");
-		}
-		
+		syncThread = new SyncThread();
+		syncThread.start();
+
+		//		for (ProxyPeer p : proxyPeerList){
+		//			p.send("join");
+		//		}
+
 		currentState = State.connected;
 		return ReturnCodes.ERR_OK;
+	}
+
+	public void send(String filename){
+		System.out.println("send called for "+filename);
+		for (ProxyPeer p : proxyPeerList){
+			if (p.connected){
+				try{
+					System.out.println("send to "+p.host.getHostAddress()+p.port);
+					Socket s = new Socket(p.host, p.port);
+					PrintStream ps = new PrintStream(s.getOutputStream());
+					System.out.println("begin!");
+					ps.println("testfile");
+					ps.println(Peer.localAddress.getHostAddress());
+					ps.println(Peer.localPort);
+					ps.println(filename);
+					File f = new File(filename);
+					int filelength = (int) f.length();
+					ps.println(filelength);
+					System.out.println("trying to send"+filename+"");
+					System.out.println("trying to send"+filelength+"bytes");
+					byte[] b = new byte[filelength];
+					FileInputStream fis = new FileInputStream(f);
+					BufferedInputStream bis = new BufferedInputStream(fis);
+					BufferedOutputStream bos = new BufferedOutputStream(s.getOutputStream());
+					
+					int totalRead = 0;
+					while (totalRead < filelength)
+					{
+						int read = bis.read(b, totalRead, filelength-totalRead);
+						totalRead += read;
+					}
+					
+					bos.write(b);
+					bos.flush();
+					bos.close();
+					fis.close();
+					bis.close();
+					s.close();
+				}catch(Exception e){
+				}
+			}
+		}
 	}
 
 	public int leave(){
@@ -74,15 +125,17 @@ public class Peer {
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
 		}
 
-		for (ProxyPeer p : proxyPeerList){
-			p.leave();
-		}
-		
+		//		for (ProxyPeer p : proxyPeerList){
+		//			p.leave();
+		//		}
+
 		try {
 			serverThread.sSocket.close();
 		} catch (IOException e) {
 		}
-		
+
+		syncThread.running = false;
+
 		currentState = State.disconnected;
 		return ReturnCodes.ERR_OK;
 	}
@@ -97,6 +150,6 @@ public class Peer {
 		connected, disconnected
 	};
 
-//	public static PeerSyncThread peerSyncThread;
+	//	public static PeerSyncThread peerSyncThread;
 
 }

@@ -9,7 +9,7 @@ public class TestMain {
 
 	public static InetAddress localAddress;
 	public static int localPort;
-	
+
 	static String peersFilename = null;
 	static int peerNumber = -1;
 
@@ -20,7 +20,7 @@ public class TestMain {
 		System.out.println();
 		System.exit(code);
 	}
-	
+
 	private static void getMoreInput(){
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		System.out.print("Input PeerFile: ");
@@ -148,7 +148,7 @@ public class TestMain {
 		Peer peer = new Peer(proxyPeerList);
 		peer.localAddress = localAddress;
 		peer.localPort = localPort;
-		
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		String input = "";
 		while(true){
@@ -163,17 +163,29 @@ public class TestMain {
 			} catch (IOException ioe) {
 			}
 			if (input.toLowerCase().equals("show")){
-				for(ProxyPeer pi : proxyPeerList){
-					System.out.println(pi.host+":"+pi.port+" is "+(pi.connected ? "online" : "offline"));
+				for(ProxyPeer pi : Peer.proxyPeerList){
+					System.out.println(pi.host+":"+pi.port+" is "+ (pi.connected ? "online" : "offline"));
+					System.out.println("\thas request queue size of "+pi.requests.size());
+					System.out.println("\tknown to have "+pi.chunks.size()+ " chunks");
 				}
-			}else if (input.toLowerCase().equals("set")){
-				System.out.println("Change myPort to...");
+				System.out.println("GlobalFileList size:"+Peer.syncManager.globalFiles.size());
+				for (ChunkedFile s : Peer.syncManager.globalFiles){
+					System.out.println(s);
+				}
+				
+			}else if (input.toLowerCase().equals("send")){
 				String input2 = "";
-				try {
-					input2 = br.readLine();
-					peer.localPort = Integer.parseInt(input2);
-				} catch (IOException ioe) {
-				}		
+				if (argv.length > 1){
+					input2 = argv[1];
+				}else{
+					System.out.println("what is the path of the file you want to insert?");
+					try {
+						input2 = br.readLine();
+					} catch (IOException ioe) {
+					}
+				}
+				System.out.println("Telling peer to insert "+input2);
+				peer.send(input2);
 			}else if (input.toLowerCase().equals("insert")){
 				String input2 = "";
 				if (argv.length > 1){
@@ -187,17 +199,7 @@ public class TestMain {
 				}
 				System.out.println("Telling peer to insert "+input2);
 				peer.insert(input2);
-			}else if (input.toLowerCase().equals("insert")){
-				System.out.println("what is the path of the file you want to insert?");
-				String input2 = "";
-				try {
-					input2 = br.readLine();
-					System.out.println("Telling peer to insert "+input2);
-					peer.insert(input2);
-				} catch (IOException ioe) {
-				}
 			}else if(input.toLowerCase().equals("query")){
-				System.out.println("Telling peer to query...");
 				Status status = new Status();
 				peer.query(status);
 				System.out.println("Status contains info of "+status.numberOfFiles()+" files");

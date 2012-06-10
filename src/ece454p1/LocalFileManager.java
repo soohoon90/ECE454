@@ -109,7 +109,15 @@ public class LocalFileManager {
 			in = new RandomAccessFile(file, "r");
 			
 			byte[] data = new byte[(int)file.length()];
-			in.read(data);
+			
+			// in.read(data);
+			int bytesRead;
+			int current = 0;
+			do {
+				bytesRead = in.read(data, current, (data.length-current));
+				if (bytesRead >= 0) current += bytesRead;
+			}while (bytesRead > 0);
+	
 			return data;
 		} catch (IOException e) {
 			System.out.println("Error reading chunk " + chunkedFile.chunkName(cn));
@@ -164,6 +172,7 @@ public class LocalFileManager {
 
 			for (int i = 0; i < chunkedFile.numberOfChunks(); i++) {
 				byte[] buffer = this.readChunk(chunkedFile, i);
+				
 				full.write(buffer);
 			}
 		} catch (IOException e) {

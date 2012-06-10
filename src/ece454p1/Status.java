@@ -1,5 +1,6 @@
 package ece454p1;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -13,19 +14,66 @@ import java.util.Map.Entry;
  **/
 public class Status {
 
-	int numLocallyPresent;
-
-	
 	public Status(){
+		numFiles = Peer.syncManager.globalFiles.size();
+		local = new float[numFiles];
+		system = new float[numFiles];
+		leastReplication = new int[numFiles];
+		weightedLeastReplication = new float[numFiles];
+		int totalNumChunks = 0;
+		
+		for (int i = 0; i < numFiles; i++){
+			
+			ChunkedFile f = (ChunkedFile) Peer.syncManager.globalFiles.toArray()[i];
+			// get number of chunks in this file
+			int numChunks = ChunkedFile.numberOfChunksForFileSize(f.getSize());
+			totalNumChunks += numChunks;
+			int[] replicated = new int[numChunks];
+			int numChunkPresentLocally = 0;
+			int numChunkSystem = 0;
+			for(int j = 0; j < numChunks; j++){
+				if (Peer.syncManager.local.getLocalChunks().contains(f.chunkName(j))){
+					numChunkPresentLocally++;
+					numChunkSystem++;
+					replicated[j]++;
+				}
+				for (ProxyPeer p : Peer.proxyPeerList){
+					if(p.chunks.contains(f.chunkName(j))){
+						numChunkSystem++;
+						replicated[j]++;
+					}
+				}
+			}
+			local[i] = (float)numChunkPresentLocally / numChunks;
+			system[i] = (float)numChunkSystem / numChunks;
+			
+			// find the minimally replicated chunk
+			int minValue = replicated[0];  
+			for(int k=1;k<replicated.length;k++){  
+				if(replicated[k] < minValue){  
+					minValue = replicated[k];  
+				}
+			}
+			leastReplication[i] = minValue;
+		}
+		for (int i = 0; i < numFiles; i++){
+			ChunkedFile f = (ChunkedFile) Peer.syncManager.globalFiles.toArray()[i];
+			int numChunks = ChunkedFile.numberOfChunksForFileSize(f.getSize());
+			weightedLeastReplication[i] = (float)totalNumChunks/numChunks;
+		}
+		
 	}
-	
+
 	public int numberOfFiles(){
 		return numFiles;
 	}
 
 	/*Use -1 to indicate if the file requested is not present*/
 	public float fractionPresentLocally(int fileNumber){
-		return -1;
+		if (fileNumber > numFiles || fileNumber < 0){
+			return -1;
+		}
+		return local[fileNumber];
 	}
 
 	/*Use -1 to indicate if the file requested is not present*/
@@ -33,8 +81,7 @@ public class Status {
 		if (fileNumber > numFiles || fileNumber < 0){
 			return -1;
 		}
-		
-		return 0;
+		return system[fileNumber];
 	}
 
 	/*Use -1 to indicate if the file requested is not present*/
@@ -42,19 +89,19 @@ public class Status {
 		if (fileNumber > numFiles || fileNumber < 0){
 			return -1;
 		}
-		
-		return 0;
+
+		return leastReplication[fileNumber];
 	}
-	
+
 	/*Use -1 to indicate if the file requested is not present*/
 	public float averageReplicationLevel(int fileNumber){
 		if (fileNumber > numFiles || fileNumber < 0){
 			return -1;
 		}
-		
-		return 0;
+
+		return weightedLeastReplication[fileNumber];
 	}
-	
+
 	// This is very cheesy and very lazy, but the focus of this assignment is
 	// not on dynamic containers but on the BT p2p file distribution
 
