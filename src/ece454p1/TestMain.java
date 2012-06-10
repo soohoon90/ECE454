@@ -192,6 +192,7 @@ public class TestMain {
 			} else if (command.equals("echo")) {
 				peer.echo();
 			} else if(command.equals("exit")) {
+				peer.leave();
 				break;
 			} else if (command.length() > 0) {
 				System.out.println("Invalid command: " + command);

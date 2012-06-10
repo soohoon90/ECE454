@@ -30,13 +30,13 @@ public class Peer {
 
 	public int insert(String filename){
 		syncManager.addFileToSystem(filename);
-		return 0;
+		return ReturnCodes.ERR_OK;
 	}
 
 	public int query(Status status){
 		// Use the file manager to create Status
 		status = new Status();
-		return 0;
+		return ReturnCodes.ERR_OK;
 	}
 
 	/*

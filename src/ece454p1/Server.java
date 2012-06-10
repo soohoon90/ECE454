@@ -68,14 +68,10 @@ public class Server implements Runnable {
 					// Reply
 					byte[] data = Peer.syncManager.readChunkData(chunkName);
 					out.write(data);
-				} else if (command.equals("leave")) {
-					for (ProxyPeer p : Peer.proxyPeerList){
-						if (p.getAddress().getHostAddress().equals(ip) && p.getPort() == port){
-							System.out.println(">> PeerResponse: "+p.getAddress()+":"+p.getPort()+" left.");
-						}
-					}
 				} else if (command.equals("echo")) {
 					System.out.println("echo from " + proxy.toString());
+				} else {
+					System.out.println("Unknown protocol command: " + command);
 				}
 				//System.out.println("Responded to '" + command + "' from " + proxy.toString());
 			} catch (IOException e) {

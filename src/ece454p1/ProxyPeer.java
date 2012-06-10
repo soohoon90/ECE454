@@ -5,14 +5,15 @@ import java.util.*;
 import java.net.*;
 
 public class ProxyPeer implements Runnable {
+	
 	private InetAddress address;
 	private int port;
-	private ArrayDeque<String> requests = new ArrayDeque<String>();
-	
-	// SyncManager
 	private HashSet<String> chunks = new HashSet<String>();
+	
+	// Must be synchronized
+	private ArrayDeque<String> requests = new ArrayDeque<String>();
 	private ArrayDeque<String> pendingChunks = new ArrayDeque<String>();
-
+	
 	public ProxyPeer(InetAddress address, Integer port){
 		this.address = address;
 		this.port = port;
@@ -26,11 +27,11 @@ public class ProxyPeer implements Runnable {
 		return port;
 	}
 	
-	public synchronized HashSet<String> getChunks() {
+	public HashSet<String> getChunks() {
 		return new HashSet<String>(chunks);
 	}
 	
-	public synchronized void setChunks(HashSet<String> chunks) {
+	public void setChunks(HashSet<String> chunks) {
 		this.chunks = new HashSet<String>(chunks);
 	}
 	
@@ -96,9 +97,6 @@ public class ProxyPeer implements Runnable {
 					// Request
 					out.println(Peer.syncManager.getFileList());
 					out.println(Peer.syncManager.getChunkList());
-				} if (command.equals("leave")) {
-					System.out.println("Sending 'leave' to " + this.toString());
-					// Nothing else to send
 				} else if (command.equals("update")) {
 					System.out.println("Sending 'update' to " + this.toString());
 					// Request
@@ -159,7 +157,6 @@ public class ProxyPeer implements Runnable {
 	
 	public synchronized void leave() {
 		requests.clear();
-		enqueue("leave");
 	}
 	
 	public synchronized void update() {
