@@ -162,11 +162,7 @@ public class SyncManager {
 				String filename = ChunkedFile.filenameFromChunkName(chunk);
 				int cn = ChunkedFile.numberFromChunkName(chunk);
 				if (filename == null || cn < 0) {
-<<<<<<< HEAD
-					System.out.println("Invalid chunk " + chunk + " in list");
-=======
 					System.out.println("Invalid chunk " + chunk + " in list:");
->>>>>>> 3f13bf516e2f44241dc267b39043387fd656b0a7
 					return;
 				}
 			}
@@ -175,56 +171,6 @@ public class SyncManager {
 		proxy.chunks = new HashSet<String>(Arrays.asList(chunks));
 		
 		}
-	}
-	
-	/**
-	 * Debug
-	 */
-	public synchronized void printGlobalFiles() {
-		ArrayList<ChunkedFile> files = new ArrayList<ChunkedFile>(globalFiles);
-		Collections.sort(files);
-		for (ChunkedFile file : files) {
-			System.out.println(file);
-		}
-	}
-	
-	/**
-	 * Debug
-	 */
-	public synchronized void printLocalFiles() {
-		ArrayList<ChunkedFile> files = new ArrayList<ChunkedFile>(local.getLocalFiles());
-		Collections.sort(files);
-		for (ChunkedFile file : files) {
-			System.out.println(file);
-		}
-	}
-	
-	/**
-	 * Debug
-	 */
-	public synchronized void printAllChunks() {
-		System.out.println("Local:");
-		ArrayList<String> chunks = new ArrayList<String>(local.getLocalChunks());
-		Collections.sort(chunks);
-		for (String chunk : chunks) {
-			System.out.println("\t" + chunk);
-		}
-		System.out.println();
-		
-<<<<<<< HEAD
-		for (ProxyPeer p : Peer.proxyPeerList) {
-			System.out.println(p.toString() + ":");
-			chunks = new ArrayList<String>(p.chunks);
-			Collections.sort(chunks);
-			for (String chunk : chunks) {
-				System.out.println("\t" + chunk);
-			}
-			System.out.println();
-		}
-=======
-		proxy.chunks = new HashSet<String>(Arrays.asList(chunks));
-		// TODO:
->>>>>>> 3f13bf516e2f44241dc267b39043387fd656b0a7
 	}
 	
 	/**
