@@ -131,8 +131,7 @@ public class TestMain {
 
 			}
 		}
-
-		if (peerNumber < 0 || peerNumber > proxyPeerList.size()) {
+		if (localAddress == null || peerNumber < 0 || peerNumber > proxyPeerList.size()) {
 			System.out.println("Error: Peer number out of range");
 			System.exit(1);
 		}

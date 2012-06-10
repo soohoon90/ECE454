@@ -1,8 +1,5 @@
 package ece454p1;
 
-import java.net.InetAddress;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.io.*;
 import java.util.*;
 import java.net.*;
@@ -28,7 +25,7 @@ import java.net.*;
  * 		chunk	- will send "chunk"
  * 				- the remote will send the data
  */
-public class ProxyPeer extends Thread{
+public class ProxyPeer implements Runnable {
 	public InetAddress host;
 	public int port;
 	public ArrayDeque<String> requests = new ArrayDeque<String>();
@@ -43,11 +40,20 @@ public class ProxyPeer extends Thread{
 	}
 
 	public void run() {
-		System.out.println("Proxy " + this.toString() + " started running");
-		
 		Socket socket = null;
 		try {
 			socket = new Socket(host, port);
+		} catch (IOException e) {
+			System.out.println("Unable to connect to " + this.toString());
+			synchronized (this) {
+				requests.clear();
+			}
+			return;
+		}
+		
+		System.out.println("Proxy " + this.toString() + " started running");
+		
+		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintStream ps = new PrintStream(socket.getOutputStream());
 			// while there are messages to be sent
@@ -60,27 +66,22 @@ public class ProxyPeer extends Thread{
 					message = requests.removeFirst();
 				}
 				// send the command first
+				System.out.println("Sending " + message + " to " + this.toString());
 				ps.println(message);
 				// followed by ip and port by convention
 				ps.println(Peer.localAddress.getHostAddress());
 				ps.println(Peer.localPort);
 				// depending on the command, send more lines
-				if (message.equals("join")){
-					// nothing else to send
-				}else if (message.equals("leave")){
-					// nothing else to send
-				}else if (message.equals("update")){
-					// update request will include file listing and chunk listing
-					// TODO: use syncManager getFileList() and getChunkList()
+				if (message.equals("join")) {
+					// Request
 					ps.println(Peer.syncManager.getFileList());
 					ps.println(Peer.syncManager.getChunkList());
-					// TODO: use FileManager's parseFileList() and parseChunkList();
-					String ip = br.readLine();
-					int port = Integer.parseInt(br.readLine());
-					Peer.syncManager.parseFileList(br.readLine());
-					Peer.syncManager.parseChunkList(ip, port, br.readLine());
-					// NOTE: if FileManager detects a new (previously unknown) global file,
-					// it will push another update to the its peers.
+				}if (message.equals("leave")) {
+					// nothing else to send
+				}else if (message.equals("update")) {
+					// Request
+					ps.println(Peer.syncManager.getFileList());
+					ps.println(Peer.syncManager.getChunkList());
 				}else if(message.equals("chunk")){
 					// chunk request need to send chunkID
 					String chunkID = "";
@@ -99,7 +100,7 @@ public class ProxyPeer extends Thread{
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("Unable to connect to " + this.toString());
+			System.out.println("Stream exception to " + this.toString());
 			return;
 		}
 
@@ -107,33 +108,40 @@ public class ProxyPeer extends Thread{
 			socket.close();
 		} catch (IOException e) {
 			System.out.println("Error closing socket to " + this.toString());
-		}
-		socket = null;
-	}
-
-	public void send(String message) {
-		if (Peer.currentState != Peer.State.connected)
 			return;
-		
-		synchronized (this) {
-			System.out.println("Proxy peer " + this.toString() + " is queuing message " + message);
-			requests.addLast(message);
+		} finally {
+			socket = null;
+		}
+		System.out.println("Closed socket to " + this.toString());
+	}
+	
+	private void enqueue(String command) {
+		requests.add(command);
 
-			if (requests.size() == 1) {
-				new Thread(this).start();
-			}
+		if (requests.size() == 1) {
+			new Thread(this).start();
 		}
 	}
 	
-	public void leave() {
-		synchronized (this) {
-			requests.clear();
-		}
-		this.send("leave");
+	public synchronized void echo() {
+		enqueue("echo");
 	}
-
+	
+	public synchronized void join() {
+		enqueue("join");
+	}
+	
+	public synchronized void leave() {
+		requests.clear();
+		enqueue("leave");
+	}
+	
+	public synchronized void update() {
+		requests.remove("update");
+		enqueue("update"); // Push to back of queue
+	}
+	
 	public String toString() {
 		return host.getHostAddress() + ":" + Integer.toString(port);
 	}
-
 }

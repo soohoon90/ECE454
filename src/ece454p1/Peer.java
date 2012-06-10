@@ -60,9 +60,8 @@ public class Peer {
 		}		
 
 		listener.start();
-		
 		for (ProxyPeer p : proxyPeerList){
-			p.send("join");
+			p.join();
 		}
 		
 		currentState = State.connected;
@@ -86,7 +85,7 @@ public class Peer {
 	
 	public void echo() {
 		for (ProxyPeer p : proxyPeerList) {
-			p.send("echo");
+			p.echo();
 		}
 	}
 

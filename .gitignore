@@ -1,6 +1,6 @@
 *.jar
 
-bin/
+bin*/
 
 *.class
 

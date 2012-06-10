@@ -51,20 +51,16 @@ public class Listener implements Runnable {
 			return;
 		}
 		
+		// Accept sockets
 		System.out.println("Server started on port " + Integer.toString(ss.getLocalPort()));
 		while (true) {
-			// Wait for socket
 			Socket s = null;
 			try {
 				s = ss.accept();
 			} catch (IOException e) {
 				break;
 			}
-			
-			// Spawn new connection handler
-			System.out.println("Accepted connection " + s.getLocalAddress().getHostAddress() + ":" + Integer.toString(s.getLocalPort()) + " <-> " + s.getInetAddress().getHostAddress() + ":" + Integer.toString(s.getPort()));
-			
-			new ResponseThread(s).start();
+			new Thread(new Server(s)).start();
 		}
 		System.out.println("Server stopped");
     }
