@@ -22,15 +22,6 @@ public class ResponseThread extends Thread{
 		peerSocket = s;
 	}
 
-	public static String implode(String[] ary, String delim) {
-		String out = "";
-		for(int i=0; i<ary.length; i++) {
-			if(i!=0) { out += delim; }
-			out += ary[i];
-		}
-		return out;
-	}
-
 	@Override
 	public void run() {
 
@@ -63,8 +54,8 @@ public class ResponseThread extends Thread{
 					// debug
 					System.out.println(">> PeerResponse: chunk request from " + ip+":"+port+" for "+chunkID);
 					// OutputStrem is used instead of PrintStream because this is Byte[]
-					// TODO: use FileManager's readChunkData
-					// out.write(FileManager.readChunkData(chunkID));
+					// TODO: use syncManager readChunkData
+					peerSocket.getOutputStream().write(Peer.syncManager.readChunkData(chunkID));
 				}else if(line.equals("join")){
 					for (ProxyPeer p : Peer.proxyPeerList){
 						if (p.host.getHostAddress().equals(ip) && p.port == port){
