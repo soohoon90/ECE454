@@ -97,13 +97,13 @@ public class TestMain {
 				Status status = new Status();
 				peer.query(status);
 				System.out.println("Status contains info of "+status.numberOfFiles()+" files");
-				for(Entry<String, ArrayList<Boolean>> entry : FileManager.list.entrySet()){
-					System.out.print("\t"+entry.getKey()+"("+entry.getValue().size()+")\t");
-					for (Boolean e : entry.getValue()){
-						System.out.print( e ? "T" : "F");
-					}
-					System.out.println("");
-				}
+//				for(Entry<String, ArrayList<Boolean>> entry : FileManager.list.entrySet()){
+//					System.out.print("\t"+entry.getKey()+"("+entry.getValue().size()+")\t");
+//					for (Boolean e : entry.getValue()){
+//						System.out.print( e ? "T" : "F");
+//					}
+//					System.out.println("");
+//				}
 			}else if(input.toLowerCase().equals("join")){
 				if(peer.join()== ReturnCodes.ERR_UNKNOWN_WARNING){
 					System.out.println("Peer is already connected. Leave first.");

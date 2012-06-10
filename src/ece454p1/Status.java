@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 public class Status {
 
 	public Status(){
-		this.numFiles = FileManager.list.size();
+		//this.numFiles = FileManager.list.size();
 	}
 	
 	public int numberOfFiles(){
@@ -26,10 +26,10 @@ public class Status {
 		if (fileNumber > numFiles || fileNumber < 0){
 			return -1;
 		}
-		Map.Entry<String, Boolean> entry = (Entry<String, Boolean>) FileManager.list.entrySet().toArray()[fileNumber];
-		if (entry.getValue() == true){
-			return 1;
-		}
+//		Map.Entry<String, Boolean> entry = (Entry<String, Boolean>) FileManager.list.entrySet().toArray()[fileNumber];
+//		if (entry.getValue() == true){
+//			return 1;
+//		}
 		return 0;
 	}
 

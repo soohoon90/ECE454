@@ -35,18 +35,18 @@ public class PeerSyncThread extends Thread{
 		System.out.println(">> PeerSyncThread: joining...");
 		for(PeerList.PeerInfo p : Peer.peerList.peers){
 			System.out.println(">> PeerSyncThread: sending signal to... "+p.host);
-			System.out.println(">> PeerSyncThread: "+FileManager.getAllFileChunkString());
+			//System.out.println(">> PeerSyncThread: "+FileManager.getAllFileChunkString());
 			Socket s;
 			try {
 				s = new Socket(p.host, p.port);
 				p.connected = true;
 				PrintStream ps = new PrintStream(s.getOutputStream());
 				ps.println("join");
-				ps.println(FileManager.getAllFileChunkString());				
+				//ps.println(FileManager.getAllFileChunkString());				
 				// the Peer will send file+chunk list in form of
 				// FN,C1,C2,C3,C4,C5,C6;FN2,C1,C2;FN3,C1
 				BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
-				FileManager.parseAllFileChunkString(br.readLine());
+				//FileManager.parseAllFileChunkString(br.readLine());
 				s.close();
 			} catch (UnknownHostException e) {
 			} catch (IOException e) {
@@ -66,62 +66,62 @@ public class PeerSyncThread extends Thread{
 			}
 
 			// TODO: pick a new chunk to request
-			String remoteChunk = FileManager.getFileNotLocal();
+			//String remoteChunk = FileManager.getFileNotLocal();
 			// if request it to connected peers in PeerList
-			if (remoteChunk.equals("") == false){
-				String fn = remoteChunk.split(",")[0];
-				int cn = Integer.parseInt(remoteChunk.split(",")[1]);
-				String chunkData = "";
-				for(PeerList.PeerInfo p : Peer.peerList.peers){
-					if (p.connected == true){
-						System.out.println(">> sending file (" + remoteChunk + ") request to... "+p.host+":"+p.port);
-						Socket s;
-						try {
-							s = new Socket(p.host, p.port);
-							p.connected = true;
-							PrintStream ps = new PrintStream(s.getOutputStream());
-							ps.println("chunk");
-							ps.println(remoteChunk);
-							InputStream in = s.getInputStream();
-//							BufferedReader br = new BufferedReader(new InputStreamReader(in));
-							byte[] b = new byte[Config.CHUNK_SIZE];
-							in.read(b);
-							if (b.equals(0) == false) FileManager.writeFileChunkData(fn, cn, b);
-//							chunkData = br.readLine();
-							s.close();
-//							if (chunkData.equals("") == false){
-							System.out.println(">> received file (" + fn + "," + cn + ") from "+p.host+":"+p.port);
-							
-							break;
-//							}
-						} catch (UnknownHostException e) {
-						} catch (IOException e) {
-						}
-					}
-				}
-			}else{
-				//System.out.println(">> no file to fetch... yawn...");
-				try {
-					Thread.currentThread().sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+//			if (remoteChunk.equals("") == false){
+//				String fn = remoteChunk.split(",")[0];
+//				int cn = Integer.parseInt(remoteChunk.split(",")[1]);
+//				String chunkData = "";
+//				for(PeerList.PeerInfo p : Peer.peerList.peers){
+//					if (p.connected == true){
+//						//System.out.println(">> sending file (" + remoteChunk + ") request to... "+p.host+":"+p.port);
+//						Socket s;
+//						try {
+//							s = new Socket(p.host, p.port);
+//							p.connected = true;
+//							PrintStream ps = new PrintStream(s.getOutputStream());
+//							ps.println("chunk");
+//							//ps.println(remoteChunk);
+//							InputStream in = s.getInputStream();
+////							BufferedReader br = new BufferedReader(new InputStreamReader(in));
+//							byte[] b = new byte[Config.CHUNK_SIZE];
+//							in.read(b);
+//							//if (b.equals(0) == false) FileManager.writeFileChunkData(fn, cn, b);
+////							chunkData = br.readLine();
+//							s.close();
+////							if (chunkData.equals("") == false){
+//							System.out.println(">> received file (" + fn + "," + cn + ") from "+p.host+":"+p.port);
+//							
+//							break;
+////							}
+//						} catch (UnknownHostException e) {
+//						} catch (IOException e) {
+//						}
+//					}
+//				}
+//			}else{
+//				//System.out.println(">> no file to fetch... yawn...");
+//				try {
+//					Thread.currentThread().sleep(5000);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
 		}		
 
-		System.out.println(">> PeerSyncThread: leaving...");
-		for(PeerList.PeerInfo p : Peer.peerList.peers){
-			if (p.connected == true){
-				try {
-					Socket s = new Socket(p.host, p.port);
-					PrintStream ps = new PrintStream(s.getOutputStream());
-					ps.println("leave");
-				} catch (Exception e) {
-				}
-			}
-		}
-		System.out.println(">> PeerClient: bye bye");		
+//		System.out.println(">> PeerSyncThread: leaving...");
+//		for(PeerList.PeerInfo p : Peer.peerList.peers){
+//			if (p.connected == true){
+//				try {
+//					Socket s = new Socket(p.host, p.port);
+//					PrintStream ps = new PrintStream(s.getOutputStream());
+//					ps.println("leave");
+//				} catch (Exception e) {
+//				}
+//			}
+//		}
+//		System.out.println(">> PeerClient: bye bye");		
 	}
 }
 

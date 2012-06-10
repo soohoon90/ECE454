@@ -14,6 +14,8 @@ import java.util.Random;
  */
 public class Peer {
 	
+	public static SyncManager sync = new SyncManager();
+	
 	public Peer(PeerList peerList){
 		currentState = State.disconnected;
 		this.peerList = peerList;
@@ -22,7 +24,7 @@ public class Peer {
 	public int insert(String filename){
 		System.out.println("Peer was told to insert " + filename);
 		// TODO: use the proper FileManager to insert new file
-		FileManager.insertNewFile(filename);
+		//FileManager.insertNewFile(filename);
 		
 		// if the peer is connected
 		// open a new connection to send a insert request for each connected peer
@@ -33,7 +35,7 @@ public class Peer {
 						Socket s = new Socket(p.host, p.port);
 						PrintStream ps = new PrintStream(s.getOutputStream());
 						ps.println("insert");
-						ps.println(FileManager.getFileChunkString(filename));
+						//ps.println(FileManager.getFileChunkString(filename));
 					} catch (UnknownHostException e) {
 					} catch (IOException e) {
 					}

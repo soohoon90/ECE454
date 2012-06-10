@@ -1,49 +1,86 @@
 package ece454p1;
 
-import java.io.*;
+import java.util.regex.*;
 
-/*
-public abstract class ChunkedFile {
+public class ChunkedFile /* TODO: implements Serializable */ {
 	
-	public String getName();
-	public long getSize();
-	public boolean hasChunk(int k);
-	public int numberOfChunks();
-}
-
-public class LocalFile {
-	public LocalFile(String name, long size);
-	public LocalFile(RemoteFile remoteFile);
+	private static final String CHUNK_REGEX = "(.+)[.](\\d+)";
 	
-	public byte[] readChunk(int k);
-	public void writeChunk(int k, byte[] data, int len);
-}
-
-public class RemoteFile {
-	public RemoteFile(String filename, long size, int[] availableChunks);
-}
- */
-
-public abstract class ChunkedFile {
-	private String name;
+	private String filename;
+	private long size;
 	
-	public ChunkedFile(String name) {
-		this.name = name;
+	public ChunkedFile(String filename, long size) {
+		this.filename = filename;
+		this.size = size;
+	}
+	
+	public String chunkName(int k) {
+		if (k >= this.numberOfChunks())
+			return null;
+		
+		return filename + "." + Integer.toString(k);
+	}
+	
+	public Object clone() {
+		return new ChunkedFile(filename, size);
+	}
+	
+	public boolean equals(Object o) {
+		if (o instanceof ChunkedFile) {
+			ChunkedFile f = (ChunkedFile)o;
+			return (f.getSize() == size) && f.getName().equals(filename);
+		}
+		return false;
+	}
+	
+	public int hashCode() {
+		return filename.hashCode() + (int)(17 * size);
 	}
 	
 	public String getName() {
-		return name;
+		return filename;
 	}
 	
-	public abstract long getSize();
-	public abstract boolean hasChunk(int k);
-	public abstract int numberOfChunks();
+	public long getSize() {
+		return size;
+	}
 	
-	static int numberOfChunksForSize(long size) {
-		if (size % Config.CHUNK_SIZE == 0) {
-			return (int)(size / Config.CHUNK_SIZE);
+	public int numberOfChunks() {
+		return ChunkedFile.numberOfChunksForFileSize(size);
+	}
+	
+	public String toString() {
+		return filename + "<" + Long.toString(size) + " bytes>";
+	}
+	
+	public static int numberOfChunksForFileSize(long fileSize) {
+		if (fileSize == 0) {
+			return 1;
+		} else if (fileSize % Config.CHUNK_SIZE == 0) {
+			return (int)(fileSize / Config.CHUNK_SIZE);
 		} else {
-			return (int)(size / Config.CHUNK_SIZE) + 1;
+			return (int)(fileSize / Config.CHUNK_SIZE) + 1;
+		}
+	}
+	
+	public static String filenameFromChunkName(String chunkName) {
+		Pattern pattern = Pattern.compile(ChunkedFile.CHUNK_REGEX);
+		Matcher matcher = pattern.matcher(chunkName);
+		if (!matcher.matches())
+			return null;
+		return matcher.group(1);
+	}
+	
+	public static int numberFromChunkName(String chunkName) {
+		Pattern pattern = Pattern.compile(ChunkedFile.CHUNK_REGEX);
+		Matcher matcher = pattern.matcher(chunkName);
+		if (!matcher.matches())
+			return 0;
+		try {
+			return Integer.parseInt(matcher.group(2));
+		} catch (NumberFormatException e) {
+			System.out.println("Error matching chunk number");
+			return 0;
 		}
 	}
 }

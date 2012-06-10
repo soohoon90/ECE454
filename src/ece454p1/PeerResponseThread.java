@@ -44,12 +44,12 @@ public class PeerResponseThread extends Thread{
 					String filename = br.readLine();
 					if (filename.length() > 0){
 						System.out.println(">> PeerResponse: INSERT request for " + filename);
-						if (FileManager.list.containsKey(filename) == false){
-							System.out.println(">> PeerResponse: inserting " + filename + "...");
-							FileManager.parseFileChunkString(filename);
-						}else{
-							System.out.println(">> PeerResponse: already exists!");
-						}
+//						if (FileManager.list.containsKey(filename) == false){
+//							System.out.println(">> PeerResponse: inserting " + filename + "...");
+//							FileManager.parseFileChunkString(filename);
+//						}else{
+//							System.out.println(">> PeerResponse: already exists!");
+//						}
 					}
 				}else if(line.equals("join")){
 					System.out.println(">> PeerResponse: JOIN request from " + fromHost);
@@ -58,9 +58,9 @@ public class PeerResponseThread extends Thread{
 							System.out.println(">> PeerResponse: "+pi.host+":"+pi.port+" joined.");
 							pi.connected = true;		
 							String linee = br.readLine();
-							FileManager.parseAllFileChunkString(linee);
-							PrintStream ps = new PrintStream(peerSocket.getOutputStream());
-							ps.println(FileManager.getAllFileChunkString());
+//							FileManager.parseAllFileChunkString(linee);
+//							PrintStream ps = new PrintStream(peerSocket.getOutputStream());
+//							ps.println(FileManager.getAllFileChunkString());
 						}
 					}
 					for (PeerList.PeerInfo pi : Peer.peerList.peers){
@@ -74,20 +74,20 @@ public class PeerResponseThread extends Thread{
 					OutputStream out = peerSocket.getOutputStream();
 					PrintStream ps = new PrintStream(out);
 					
-					System.out.println(">> PeerResponse: We "+ (FileManager.list.get(fileName).get(cn) ? "have " : " don't have ") + fileName+","+cn);
-					byte[] fileData = FileManager.fetchFileChunkData(fileName, cn);
-					if (FileManager.list.get(fileName).get(cn)){
-//						try {
-//							Thread.currentThread().sleep(5000);
-//						} catch (InterruptedException e) {
-//						}
-//						ps.println(fileData);
-						out.write(fileData);
-					}else{
-						// don't have it!
-						out.write(0);
-//						ps.println("");
-					}
+//					System.out.println(">> PeerResponse: We "+ (FileManager.list.get(fileName).get(cn) ? "have " : " don't have ") + fileName+","+cn);
+//					byte[] fileData = FileManager.fetchFileChunkData(fileName, cn);
+//					if (FileManager.list.get(fileName).get(cn)){
+////						try {
+////							Thread.currentThread().sleep(5000);
+////						} catch (InterruptedException e) {
+////						}
+////						ps.println(fileData);
+//						out.write(fileData);
+//					}else{
+//						// don't have it!
+//						out.write(0);
+////						ps.println("");
+//					}
 				}else if(line.equals("leave")){
 					for (PeerList.PeerInfo pi : Peer.peerList.peers){
 						if (pi.host.equals(fromHost)){
