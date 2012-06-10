@@ -209,7 +209,7 @@ public class SyncManager {
 		
 		local.writeChunk(chunkedFile, cn, data);
 		
-		// send updates
+		// Send updates
 		if (Peer.currentState == Peer.State.connected){
 			for (ProxyPeer p : Peer.proxyPeerList){
 				if (p.connected){
@@ -217,5 +217,7 @@ public class SyncManager {
 				}
 			}
 		}
+		
+		// TODO: decide next chunks to download
 	}
 }

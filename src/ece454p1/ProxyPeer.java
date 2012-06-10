@@ -30,16 +30,18 @@ import java.net.*;
 public class ProxyPeer extends Thread{
 	public InetAddress host;
 	public int port;
-	public Boolean connected;
+	public boolean connected;
 	public ArrayDeque<String> requests = new ArrayDeque<String>();
 	public ArrayList<String> chunks = new ArrayList<String>();
 
-	public ProxyPeer(InetAddress h, Integer p, Boolean c){
+	public ProxyPeer(InetAddress h, Integer p){
 		host = h;
 		port = p;
 	}
 
 	public void run() {
+		System.out.println("Proxy peer " + this.toString() + " started running");
+		
 		Socket socket = null;
 		try {
 			socket = new Socket(host, port);
@@ -106,6 +108,7 @@ public class ProxyPeer extends Thread{
 
 	public void send(String message) {
 		synchronized (this) {
+			System.out.println("Proxy peer " + this.toString() + " is queuing message " + message);
 			requests.addLast(message);
 
 			if (requests.size() == 1 && Peer.currentState == Peer.State.connected) {
