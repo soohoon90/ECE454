@@ -38,14 +38,21 @@ public class ResponseThread extends Thread{
 
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(peerSocket.getInputStream()));
+			PrintStream ps = new PrintStream(peerSocket.getOutputStream());
 			String line = br.readLine();
 			String ip = br.readLine();
 			int port = Integer.parseInt(br.readLine());
 			if( line != null ){
 				if(line.equals("update")){
+					System.out.println(">> PeerResponse: update request from " + ip+":"+port);
 					// update request comes will file listing and chunk listing
-					
-
+					Peer.syncManager.parseFileList(br.readLine());
+					Peer.syncManager.parseChunkList(ip, port, br.readLine());
+					// send update back
+					ps.println(Peer.localAddress.getHostAddress());
+					ps.println(Peer.localPort);
+					ps.println(Peer.syncManager.getFileList());
+					ps.println(Peer.syncManager.getChunkList());
 				}else if(line.equals("chunk")){
 					// chunk request has the format of:
 					// 		ip
@@ -55,8 +62,6 @@ public class ResponseThread extends Thread{
 					
 					// debug
 					System.out.println(">> PeerResponse: chunk request from " + ip+":"+port+" for "+chunkID);
-					
-					PrintStream ps = new PrintStream(peerSocket.getOutputStream());
 					// OutputStrem is used instead of PrintStream because this is Byte[]
 					// TODO: use FileManager's readChunkData
 					// out.write(FileManager.readChunkData(chunkID));
@@ -72,6 +77,7 @@ public class ResponseThread extends Thread{
 						if (p.host.getHostAddress().equals(ip) && p.port == port){
 							System.out.println(">> PeerResponse: "+p.host+":"+p.port+" left.");
 							p.connected = false;
+							p.requests.clear();
 						}
 					}
 				}

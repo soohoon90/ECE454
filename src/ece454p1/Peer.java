@@ -17,23 +17,28 @@ public class Peer {
 	
 	public static InetAddress localAddress;
 	public static int localPort;
-	public static FileManager fileManager;
 	public static State currentState;
 	public static ArrayList<ProxyPeer> proxyPeerList;
 	public static ServerThread serverThread;
+	public static SyncManager syncManager;
 	
 	public Peer(ArrayList<ProxyPeer> ppl) {
 		currentState = State.disconnected;
-		proxyPeerList = ppl; 
+		proxyPeerList = ppl;
+		syncManager = new SyncManager();
 	}
 
 	public int insert(String filename){
 		System.out.println("Peer was told to insert " + filename);
 		// TODO: use the proper FileManager to insert new file
-//		fileManager.importFile(filename);
-		
-		
-		
+		int returnCode = syncManager.addFileToSystem(filename);		
+		if (returnCode == -1){
+			System.out.println("Error: the file "+ filename + " doesn't exist");
+		}else if(returnCode == 1){
+			System.out.println("Error: the file "+ filename + " is already in the system");
+		}else{
+			System.out.println("added "+ filename);
+		}
 		// PeerInsertNotifierThread p = new PeerInsertNotifierThread(filename);
 		return 0;
 	}
@@ -53,20 +58,12 @@ public class Peer {
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
 		}		
 
-		// launch the server thread that will spawn a response thread
-		// response thread will handle the request sent to the server
-		// types of req/res include:  request to join w/file list
-		//									get file list response
-		//							  request to leave
-		//							  request for file list update
-		//									get file list response
-		//							  request for file insert
-		//									ACK
-		//							  request for file chunk
-		//									get file chunk response
-		//										will request update w/file list
 		serverThread = new ServerThread(localPort);
 		serverThread.start();
+		
+		for (ProxyPeer p : proxyPeerList){
+			p.send("join");
+		}
 		
 		currentState = State.connected;
 		return ReturnCodes.ERR_OK;
@@ -77,14 +74,13 @@ public class Peer {
 			return ReturnCodes.ERR_UNKNOWN_WARNING;
 		}
 
-		// Set the ServerThread's while loop to end
-		serverThread.running = false;
-		// ServerThread is still waiting for a connection
-		// Let's send a false connection to shut it down
+		for (ProxyPeer p : proxyPeerList){
+			p.leave();
+		}
+		
 		try {
-			Socket s = new Socket(localAddress, localPort);
-			s.close();
-		} catch (Exception e) {
+			serverThread.sSocket.close();
+		} catch (IOException e) {
 		}
 		
 		currentState = State.disconnected;

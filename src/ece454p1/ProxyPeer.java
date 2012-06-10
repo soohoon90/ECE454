@@ -31,8 +31,8 @@ public class ProxyPeer extends Thread{
 	public InetAddress host;
 	public int port;
 	public Boolean connected;
-	private ArrayDeque<String> requests = new ArrayDeque<String>();
-	private ArrayList<String> chunks = new ArrayList<String>();
+	public ArrayDeque<String> requests = new ArrayDeque<String>();
+	public ArrayList<String> chunks = new ArrayList<String>();
 
 	public ProxyPeer(InetAddress h, Integer p, Boolean c){
 		host = h;
@@ -61,17 +61,19 @@ public class ProxyPeer extends Thread{
 				ps.println(Peer.localPort);
 				// depending on the command, send more lines
 				if (message.equals("join")){
-					
-				}if (message.equals("leave")){
-					
+					// nothing else to send
+				}else if (message.equals("leave")){
+					// nothing else to send
 				}else if (message.equals("update")){
 					// update request will include file listing and chunk listing
-					// TODO: use FileManager's getFileList() and getChunkList()
-					// ps.println(Peer.fileManager.getFileList());
-					// ps.println(Peer.fileManager.getChunkList());
+					// TODO: use syncManager getFileList() and getChunkList()
+					ps.println(Peer.syncManager.getFileList());
+					ps.println(Peer.syncManager.getChunkList());
 					// TODO: use FileManager's parseFileList() and parseChunkList();
-					// Peer.fileManager.parseFileList(br.readLine());
-					// Peer.fileManager.parseChunkList(br.readLine());
+					String ip = br.readLine();
+					int port = Integer.parseInt(br.readLine());
+					Peer.syncManager.parseFileList(br.readLine());
+					Peer.syncManager.parseChunkList(ip, port, br.readLine());
 					// NOTE: if FileManager detects a new (previously unknown) global file,
 					// it will push another update to the its peers.
 				}else if(message.equals("chunk")){
@@ -79,7 +81,6 @@ public class ProxyPeer extends Thread{
 					String chunkID = "";
 					// String chunkID = SyncManager.grabNextChunkToRequest();
 					ps.println(chunkID);
-					
 					// the request will now wait for the chunkData
 					// inputStream is used instead of BufferedReader
 					// because this is byte array
@@ -87,7 +88,7 @@ public class ProxyPeer extends Thread{
 					socket.getInputStream().read(chunkData);
 					// TODO: write the chunkDATA to chunk file
 					// when a write completes, FM will push a new chunk request to our queue
-					// FileManager.writeChunkData(chunkID, chunkData);
+					Peer.syncManager.writeChunkData(chunkID, chunkData);
 				}
 			}
 		} catch (IOException e) {
@@ -107,6 +108,16 @@ public class ProxyPeer extends Thread{
 		synchronized (this) {
 			requests.addLast(message);
 
+			if (requests.size() == 1 && Peer.currentState == Peer.State.connected) {
+				new Thread(this).start();
+			}
+		}
+	}
+	
+	public void leave(){
+		synchronized (this) {
+			requests.clear();
+			requests.addLast("leave");
 			if (requests.size() == 1 && Peer.currentState == Peer.State.connected) {
 				new Thread(this).start();
 			}
