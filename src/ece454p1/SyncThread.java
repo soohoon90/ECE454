@@ -122,10 +122,10 @@ public class SyncThread extends Thread{
 							{
 								baos.write(b, 0, ss);
 							}
-							is.close();
+							//is.close();
 
 							byte result[] = baos.toByteArray();
-							System.out.println(result.length +"bytes!" + Config.CHUNK_SIZE);
+							
 							Peer.syncManager.writeChunkData(chunkToBeRequested, result);
 							s.close();
 							break;
