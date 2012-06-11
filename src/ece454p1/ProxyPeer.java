@@ -118,6 +118,8 @@ public class ProxyPeer implements Runnable {
 					}
 					
 					Peer.syncManager.writeChunkData(chunk, baos.toByteArray());
+				} else if (command.equals("leave")) {
+					// Nothing else to send
 				} else if (command.equals("echo")) {
 					System.out.println("Sending 'echo' to " + this.toString());
 					out.println("echo");
@@ -157,6 +159,7 @@ public class ProxyPeer implements Runnable {
 	
 	public synchronized void leave() {
 		requests.clear();
+		enqueue("leave");
 	}
 	
 	public synchronized void update() {

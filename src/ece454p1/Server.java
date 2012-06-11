@@ -54,7 +54,7 @@ public class Server implements Runnable {
 					
 					// Psuedo-reply
 					proxy.update();
-				} if (command.equals("update")) {
+				} else if (command.equals("update")) {
 					// Request
 					String fileList = in.readLine();
 					String chunkList = in.readLine();
@@ -68,6 +68,9 @@ public class Server implements Runnable {
 					// Reply
 					byte[] data = Peer.syncManager.readChunkData(chunkName);
 					out.write(data);
+				} else if (command.equals("leave")) {
+					System.out.println(proxy.toString() + " disconnected");
+					Peer.syncManager.parseChunkList(proxy, "");
 				} else if (command.equals("echo")) {
 					System.out.println("echo from " + proxy.toString());
 				} else {

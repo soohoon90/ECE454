@@ -166,6 +166,15 @@ public class SyncManager {
 		proxy.setPendingChunks(new ArrayDeque<String>(remoteChunks));
 	}
 	
+	public synchronized void populateStatus(Status status) {
+		status.globalFiles = new ArrayList<ChunkedFile>(globalFiles);
+		status.localChunks = new ArrayList<String>(local.getLocalChunks());
+		status.proxyChunksList = new ArrayList<ArrayList<String>>();
+		for (ProxyPeer proxy : Peer.proxyPeerList) {
+			status.proxyChunksList.add(new ArrayList<String>(proxy.getChunks()));
+		}
+	}
+	
 	/**
 	 * Debug
 	 */

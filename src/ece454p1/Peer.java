@@ -34,8 +34,7 @@ public class Peer {
 	}
 
 	public int query(Status status){
-		// Use the file manager to create Status
-		status = new Status();
+		syncManager.populateStatus(status);
 		return ReturnCodes.ERR_OK;
 	}
 
