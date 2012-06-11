@@ -27,11 +27,11 @@ public class ProxyPeer implements Runnable {
 		return port;
 	}
 	
-	public HashSet<String> getChunks() {
+	public synchronized HashSet<String> getChunks() {
 		return new HashSet<String>(chunks);
 	}
 	
-	public void setChunks(HashSet<String> chunks) {
+	public synchronized void setChunks(HashSet<String> chunks) {
 		this.chunks = new HashSet<String>(chunks);
 	}
 	
@@ -160,6 +160,7 @@ public class ProxyPeer implements Runnable {
 	public synchronized void leave() {
 		requests.clear();
 		enqueue("leave");
+		this.setChunks(new HashSet<String>());
 	}
 	
 	public synchronized void update() {
